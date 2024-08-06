@@ -1,10 +1,10 @@
 'use client'
 import { Canvas } from '@react-three/fiber'
-import Model form './Model'
+import Model from './Model'
 import { Environment } from '@react-three/drei'
 
-export function Scene () {
+export function Scene() {
     <Canvas>
-        
+        <Model />
     </Canvas>
 }
