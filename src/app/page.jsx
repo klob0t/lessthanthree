@@ -1,12 +1,14 @@
-import Image from "next/image"
-import styles from "./page.module.css"
-import Rose from './components/Rose'
+import styles from './page.module.css'
+import dynamic from 'next/dynamic'
+
+const Scene = dynamic(() => import('./components/Scene'), {
+    ssr: false,
+})
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.p1}>it has been</div>
-      <div className={styles.p2}>992140</div>
-    </main>
-  );
+    return (
+        <main className={styles.main}>
+            <Scene />
+        </main>
+    )
 }
