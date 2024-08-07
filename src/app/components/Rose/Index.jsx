@@ -5,10 +5,12 @@ import { Environment } from '@react-three/drei'
 
 export default function Scene() {
     return(
-    <Canvas style={{background: 'white'}}>
+    <Canvas 
+    style={{background: 'white'}}
+    camera={{ fov: 64, position: [-5, 2, 0] }}>
+         <ambientLight intensity={1} position={[0, 5, 3]}/>
+         <Environment preset="city" />
         <Model />
-        <directionalLight intensity={2} position={[0, 2, 3]}/>
-        <Environment preset="city" />
     </Canvas>
     )
 }

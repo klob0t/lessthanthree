@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import * as THREE from 'three'
 import { useGLTF, Text } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 
@@ -11,13 +12,13 @@ export default function Model(){
     rose.current.rotation.y += 0.02
 })
    return (
-      <group ref={rose} scale={viewport.width/2}>
+      <group ref={rose} scale={viewport.width/2} position={[0, -0.5, 0]}>
           <mesh 
           geometry={nodes.mesh.geometry}
-          material={materials['Material.001']}/>
+          material={new THREE.MeshStandardMaterial()}/>
           <mesh 
           geometry={nodes.mesh_1.geometry}
-          material={materials['Material.002']}/>
+          material={new THREE.MeshStandardMaterial()}/>
       </group>
    )
 }
