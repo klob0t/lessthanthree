@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@next-tools/dynamic": "^0.0.11",
     "@react-three/drei": "^9.109.2",
     "@react-three/fiber": "^8.16.8",
     "@types/three": "^0.167.1",

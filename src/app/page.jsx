@@ -1,12 +1,12 @@
 import dynamic from 'next/dynamic'
-import { Scene } from './components/Rose/Index'
+import styles from './page.module.css'
+
+const Scene = dynamic(() => import ('./components/Rose/Index'))
 
 export default function Home() {
     return (
-        <main>
-            <div >
+        <main className={styles.main}>
                 <Scene />
-            </div>
         </main>
     )
 }

@@ -3,8 +3,12 @@ import { Canvas } from '@react-three/fiber'
 import Model from './Model'
 import { Environment } from '@react-three/drei'
 
-export function Scene() {
-    <Canvas>
+export default function Scene() {
+    return(
+    <Canvas style={{background: 'white'}}>
         <Model />
+        <directionalLight intensity={2} position={[0, 2, 3]}/>
+        <Environment preset="city" />
     </Canvas>
+    )
 }
