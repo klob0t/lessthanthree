@@ -1,16 +1,20 @@
-'use client'
-import { Canvas } from '@react-three/fiber'
-import Model from './model'
-import { Environment } from '@react-three/drei'
+import { Canvas, useThree } from '@react-three/fiber';
+import Model from './model';
+import { Environment } from '@react-three/drei';
+import gsap from 'gsap';
+import { useRef, useEffect } from 'react';
+import * as THREE from 'three'
 
 export default function Scene() {
-    return(
+  const camera = useRef(null);
+
+  return (
     <Canvas 
-    style={{background: 'white'}}>
-    <camera fov={120} near={0.1} far={1000} position={[0, 40, 0]}/>
-         <hemisphereLight intensity={6} position={[0, 10, 3]}/>
-         <Environment preset="sunset" />
-        <Model />
+      camera={{position: [0, -1, 0], fov: 120}} 
+      style={{ background: 'white' }}>
+      <hemisphereLight intensity={6} />
+      <Environment preset="city" />
+      <Model />
     </Canvas>
-    )
+  );
 }

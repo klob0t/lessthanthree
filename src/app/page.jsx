@@ -13,16 +13,15 @@ export default function Home() {
     const timeout = setTimeout(() => {
       setTimeout(() => {
         setIsLoading(false);
-      }, 500);
-    }, 500);
+      }, 2000)
+    }, 2000);
     return () => clearTimeout(timeout);
   }, []);
 
   return (
     <main className={styles.main}>
       {isLoading ? 
-        <Scene /> :
-        <Counter />}
+        <Scene /> : <Counter />}
     </main>
   )
 }
