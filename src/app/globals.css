@@ -1,3 +1,12 @@
-body{
+@font-face {
+    font-family: "The Silver Editorial";
+    src: url(/fonts/TheSilverEditorial-Regular.ttf) format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body, html{
+    font-family: 'The Silver Editorial';
     margin: 0px;
+    letter-spacing: 0.1em;
 }
