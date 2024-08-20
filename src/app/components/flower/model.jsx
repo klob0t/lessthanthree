@@ -4,20 +4,21 @@ import { useFrame, useThree } from '@react-three/fiber'
 import gsap from 'gsap'
 
 export default function Model() {
-  const { nodes, materials } = useGLTF("/3ds/sunflower.glb");
+  const { nodes, materials } = useGLTF("/3ds/rhodanthe.glb");
   const { viewport } = useThree();
-  const sunflower = useRef(null);
+  const flower = useRef(null);
   const group = useRef(null);
+  useGLTF.preload("/3ds/rhodanthe.glb")
 
 
   useEffect(() => {
-    gsap.to(sunflower.current.rotation, {
+    gsap.to(flower.current.rotation, {
       y: 10,
       repeat: 0,
       duration: 4,
       ease: "power4.out",
     });
-  }, [sunflower]);
+  }, [flower]);
 
     useEffect(() => {
     gsap.to(group.current.rotation, {
@@ -30,18 +31,18 @@ export default function Model() {
 
   return (
     <group ref={group}>
-      <group ref={sunflower} scale={viewport.height / 5} position={[0, 0, 0]} rotation={[0, 0, 0]}>
-        <mesh
+      <group ref={flower} scale={viewport.height / 50} position={[0, 0, 0]} rotation={[0, 0, 0]}>
+       <mesh
           castShadow
           receiveShadow
-          geometry={nodes.Mesh001.geometry}
-          material={materials['Material.002']}
+          geometry={nodes.Cube_1.geometry}
+          material={materials.Pollen}
         />
         <mesh
           castShadow
           receiveShadow
-          geometry={nodes.Mesh001_1.geometry}
-          material={materials['Material.003']}
+          geometry={nodes.Cube_2.geometry}
+          material={materials.Petal}
         />
       </group>
     </group>

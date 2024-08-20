@@ -4,7 +4,7 @@ import styles from './page.module.css'
 import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
 import Counter from './components/counter/page';
-const Scene = dynamic(() => import('./components/sunflower/page'),)
+const Scene = dynamic(() => import('./components/flower/page'),)
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)

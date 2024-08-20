@@ -32,7 +32,7 @@ function Scene(props, ref) {
     return (
         <Canvas style={{ background: 'white' }}>
             <AnimatedCamera />
-            <hemisphereLight intensity={6} />
+            <pointLight intensity={6} />
             <Environment preset="sunset" />
             <Model />
         </Canvas>
