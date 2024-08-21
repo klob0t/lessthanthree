@@ -3,6 +3,7 @@ import Model from './model';
 import { Environment } from '@react-three/drei';
 import gsap from 'gsap';
 import { useEffect, forwardRef } from 'react';
+import styles from './page.module.css'
 
 function AnimatedCamera() {
     const { camera } = useThree();
@@ -30,12 +31,14 @@ function AnimatedCamera() {
 
 function Scene(props, ref) {
     return (
-        <Canvas style={{ background: 'white' }}>
-            <AnimatedCamera />
-            <pointLight intensity={6} />
-            <Environment preset="sunset" />
-            <Model />
-        </Canvas>
+        <div className={styles.canvas}>
+            <Canvas>
+                <AnimatedCamera />
+                <pointLight intensity={6} />
+                <Environment preset="sunset" />
+                <Model />
+            </Canvas>
+        </div>
     );
 }
 export default Scene
