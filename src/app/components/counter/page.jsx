@@ -1,10 +1,9 @@
 import styles from '@/app/components/counter/page.module.css';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
-// import useGSAP from '@gsap/react'
 
 function DaysPassed() {
-  const pastDate = new Date('2022-08-27'); // Corrected date format
+  const pastDate = new Date('2022-08-27');
   const [daysPassed, setDaysPassed] = useState(0);
 
   const calculateDays = useCallback(() => {
@@ -18,30 +17,46 @@ function DaysPassed() {
     calculateDays();
   }, [calculateDays]);
 
-  return daysPassed; // Return the calculated days
+  return daysPassed;
 }
 
 function Counter() {
-  const [count, setCount] = useState(0);
   const endValue = DaysPassed();
   const counting = useRef(null);
   const counter = useRef(null);
+  const textBefore = useRef(null);
+  const textAfter = useRef(null);
 
-  gsap.to(counting.current, {
-    duration: 4,
-    textContent: endValue,
-    roundProps: "textContent",
-    ease: "power4.inOut",
-  })
-    gsap.to(counter.current, {
-    duration: 4,
-    ease: "power4.inOut",
-    stagger: 1
-  })
+  useEffect(() => {
+    const tl = gsap.timeline();
+
+    // Hide the text before and after initially
+    gsap.set([textBefore.current, textAfter.current], { opacity: 0 });
+
+    // Animate the counter
+    tl.to(counting.current, {
+      duration: 4,
+      textContent: endValue,
+      roundProps: "textContent",
+      ease: "power4.inOut",
+      opacity: 1,
+    })
+    // Fade in the text before and after
+    .to([textBefore.current, textAfter.current], {
+      duration: 1,
+      opacity: 1,
+      ease: "power2.inOut",
+    });
+
+  }, [endValue]);
 
   return (
-    <div  ref={counter} className={styles.counter}>
-      <h1>It has been<div style={{ fontSize: "2em" }} ref={counting}>0</div>days since we are together</h1>
+    <div ref={counter} className={styles.counter}>
+      <h1>
+        <div ref={textBefore}>It has been </div>
+        <div style={{ fontSize: "3em", display: "inline-block", opacity: 0 }} ref={counting}>0</div>
+        <div ref={textAfter}> days since we are together...</div>
+      </h1>
     </div>
   );
 }

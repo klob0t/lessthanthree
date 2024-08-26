@@ -3,8 +3,12 @@ import dynamic from 'next/dynamic'
 import styles from './page.module.css'
 import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
-import Counter from './components/counter/page';
+import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
+import PhotosCounter from './components/photos-counter/page';
 const Scene = dynamic(() => import('./components/flower/page'),)
+const Counter = dynamic(() => import('./components/counter/page'),)
+
+const Photos = dynamic(() => import('./components/photos/page'),)
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
@@ -55,26 +59,48 @@ export default function Home() {
         stagger: 5
       })
       gsap.to(spanRef.current, {
-          y: 10,
-          ease: "power1.inOut",
+        y: 10,
+        ease: "power1.inOut",
         duration: 1,
         repeat: -1,
-        yoyo: true
+        yoyo: true,
+        delay: 5
+      })
+      gsap.to(spanRef.current, {
+        keyframes: {
+          opacity: [0, 1],
+          duration: 10,
+        },
+        delay: 5
       })
     }
   }, [isButton]);
 
-  console.log(spanRef.current)
-
   return (
     <main className={styles.main}>
-      {isLoading ?
+      {/* {isLoading ?
         <div className={styles.canvas} ref={sceneRef}>
           <Scene />
           {isButton ?
-            <div ref={button} className={styles.button} onClick={clickHandler}>Hello, Darling <div ref={spanRef} style={{ fontSize: "2em",lineHeight: "0.1em" }}>↓</div></div> : null}
+            <div
+              ref={button}
+              className={styles.button}
+              onClick={clickHandler}>Hello, Darling
+              <div
+                ref={spanRef}
+                style={{
+                  fontSize: "2em",
+                  lineHeight: "0.1em",
+                  opacity: 0
+                }}>↓
+              </div>
+            </div> : null}
         </div>
-        : <Counter />}
+        :
+          <Counter />
+      } */}
+      <PhotosCounter />
+
     </main>
   )
 }

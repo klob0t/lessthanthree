@@ -24,3 +24,9 @@
     font-size: 2em;
     text-align: center;
 }
+.counter {
+  /* Add some visible styles to ensure it's not hidden */
+  border: 1px solid red;
+  padding: 20px;
+  opacity: 1;
+}
