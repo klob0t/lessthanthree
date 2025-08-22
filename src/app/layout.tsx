@@ -9,8 +9,8 @@ const geistSans = Geist({
 
 
 export const metadata: Metadata = {
-  title: "<3",
-  description: "hi, Muthia",
+  title: "hello",
+  description: "hi",
 };
 
 export default function RootLayout({
