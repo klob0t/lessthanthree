@@ -1,12 +1,13 @@
 :root {
-  --background: #dad4cd;
+  --background: #f7f4f0;
 }
 
 html,
 body {
   width: 100dvw;
   height: 100dvh;
-  overflow: hidden;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
 }
 
 body {

@@ -1,5 +1,17 @@
 .main {
   width: 100%;
   height: 100%;
-  position: relative
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+}
+
+.flower {
+  width: 100%;
+  height: 100%;
+}
+
+.photos {
+  width: 100%;
+  height: 100%;
 }
