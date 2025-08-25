@@ -29,33 +29,7 @@ export default function Model() {
     const initRot = [-Math.PI / 0.496, 0, 0]
 
 
-    useGSAP(() => {
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                start: 'top top',
-                end: 'bottom bottom',
-                scrub: true,
-                markers: true
-            }
-        })
-
-        gsap.to(flowerMoveRef.current.rotation, {
-            y: Math.PI / 0.5,
-            repeat: -1,
-            ease: 'none',
-            duration: 10
-        })
-
-        tl
-            .to(flowerRef.current.position, {
-                x: 2.5,
-                y: 2,
-                z: 1.7
-            }).to(flowerRef.current.rotation, {
-                x: -Math.PI / 2
-            }, 0)
-
-    })
+   
 
 
     const path = '/3d/flower.glb'

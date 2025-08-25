@@ -67,6 +67,7 @@ export const TrackedImage = (props: TrackedImageProps) => {
       alt={alt}
       onLoad={handleLoadingComplete}
       onError={handleError}
+      loading='eager'
     />
   )
 }
