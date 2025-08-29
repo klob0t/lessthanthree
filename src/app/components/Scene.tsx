@@ -17,27 +17,25 @@ type TimelineWithScroll = gsap.core.Timeline & { scrollTrigger?: ScrollTrigger |
 
 interface GLTFResult {
     nodes: {
-        Object_0: THREE.Mesh
-        Object_0_1: THREE.Mesh
-        Object_0_2: THREE.Mesh
-        Object_0_3: THREE.Mesh
+        mesh001: THREE.Mesh
+        mesh001_1: THREE.Mesh
+        mesh001_2: THREE.Mesh
+        mesh001_3: THREE.Mesh
     }
     materials: {
-        CREEPY_LADY_PG_EX2_tex0: THREE.Material
-        CREEPY_LADY_PG_EX2_tex1: THREE.Material
-        CREEPY_LADY_PG_EX2_tex2: THREE.Material
-        CREEPY_LADY_PG_EX2_tex3: THREE.Material
+        RED: THREE.MeshStandardMaterial
+        YELLOW: THREE.MeshStandardMaterial
+        LEAVES: THREE.MeshPhysicalMaterial
+        PUTIK: THREE.MeshStandardMaterial
     }
 }
 
-export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElement> }) {
-    const { nodes, materials } = useGLTF('/3d/statue.glb') as unknown as GLTFResult
+export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElement | null> }) {
+    const { nodes, materials } = useGLTF('/3d/flower.glb') as unknown as GLTFResult
     const modelGroupRef = useRef<THREE.Group>(null)
     const rotationGroupRef = useRef<THREE.Group>(null)
-    const initPos: [number, number, number] = [0, 0, 0];
-    const initRot: [number, number, number] = [-1, 0, 0];
-
-    console.log(modelGroupRef.current)
+    const initPos: [number, number, number] = [0, 7, 0];
+    const initRot: [number, number, number] = [Math.PI / 0.5, 0, 0];
 
     useGSAP(() => {
         if (!trigger || !trigger.current) return;
@@ -45,6 +43,13 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
         let rafId: number | null = null;
         let tl: TimelineWithScroll | null = null;
         let created = false;
+
+        const el = gsap.utils.toArray(trigger.current.children)
+
+
+        const heroTrig = el[0]
+        const photoTrig = el[1]
+        const letterTrig = el[2]
 
         const trySetup = () => {
             if (!trigger || !trigger.current) return;
@@ -62,17 +67,43 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             const rotation = rotationGroupRef.current!;
 
             tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: trigEl,
-                    start: 'top top',
-                    end: 'bottom bottom',
-                    scrub: true,
-                    markers: true,
-                },
             }) as TimelineWithScroll;
 
-            tl.to(model.position, { y: -4, x: 1 }, 0);
-            tl.to(rotation.rotation, { y: Math.PI * 2, x: 0 }, 0);
+
+            gsap.to(rotation.rotation, {
+                y: Math.PI * 2,
+                ease: 'none',
+                repeat: -1,
+                duration: 10
+            })  
+
+            tl.to(model.position, {
+                y: 4,
+                x: 1.5,
+                z: 1,
+                ease: 'power1.inOut',
+                scrollTrigger: {
+                    trigger: el[0],
+                    scrub: true,
+                    // markers: true,
+                    start: '60 top',
+                    endTrigger: photoTrig,
+                    end: 'center center'
+                },
+            }, 0)
+            tl.to(model.rotation,
+                {
+                    x: Math.PI / 0.7,
+                    y: 0,
+                    ease: 'power1.inOut',
+                    scrollTrigger: {
+                        trigger: el[0],
+                        scrub: true,
+                        start: '60 top',
+                        endTrigger: photoTrig,
+                        end: 'center center',
+                    }
+                }, 0)
 
             ScrollTrigger.refresh();
         };
@@ -93,7 +124,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
         };
     }, {
         dependencies: [trigger, nodes],
-        scope: modelGroupRef,
+        scope: trigger.current,
     });
 
 
@@ -104,7 +135,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             style={{
                 backgroundColor: 'transparent',
                 position: 'fixed',
-                width: '100vw',
+                width: '100dvw',
                 height: '100vh',
                 pointerEvents: 'none'
             }}
@@ -117,33 +148,29 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                 <Environment files='/images/hdri/sunrise.jpg' />
                 <group
                     ref={modelGroupRef}
-                    position={initPos}>
+                    position={initPos}
+                    rotation={initRot}>
                     <group
                         ref={rotationGroupRef}
                         rotation={initRot}>
+                        <mesh castShadow receiveShadow geometry={nodes.mesh001.geometry} material={materials.RED} />
                         <mesh
                             castShadow
                             receiveShadow
-                            geometry={nodes.Object_0.geometry}
-                            material={materials.CREEPY_LADY_PG_EX2_tex0}
+                            geometry={nodes.mesh001_1.geometry}
+                            material={materials.YELLOW}
                         />
                         <mesh
                             castShadow
                             receiveShadow
-                            geometry={nodes.Object_0_1.geometry}
-                            material={materials.CREEPY_LADY_PG_EX2_tex1}
+                            geometry={nodes.mesh001_2.geometry}
+                            material={materials.LEAVES}
                         />
                         <mesh
                             castShadow
                             receiveShadow
-                            geometry={nodes.Object_0_2.geometry}
-                            material={materials.CREEPY_LADY_PG_EX2_tex2}
-                        />
-                        <mesh
-                            castShadow
-                            receiveShadow
-                            geometry={nodes.Object_0_3.geometry}
-                            material={materials.CREEPY_LADY_PG_EX2_tex3}
+                            geometry={nodes.mesh001_3.geometry}
+                            material={materials.PUTIK}
                         />
                     </group>
                 </group>

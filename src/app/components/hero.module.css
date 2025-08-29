@@ -1,0 +1,20 @@
+.heroPage {
+   font-family: var(--serif);
+   display: flex;
+   height: 100vh;
+   margin: 0;
+   padding: 0;
+   font-weight: 400;
+   font-size: 5rem;
+   color: var(--text)
+}
+
+.heroPage h1 {
+   margin: 0;
+   letter-spacing: -0.6rem;
+}
+
+.heroPage img {
+   width: 20%;
+   margin: 0;
+}

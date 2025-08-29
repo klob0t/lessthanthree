@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Upright } from "next/font/google";
 import "./globals.css";
 import LenisProvider from "./lib/utils/Lenis";
 
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const serif = Cormorant_Upright({
+  weight: ['400', ],
+  style: ['normal'],
+  variable: '--serif'
 });
 
 
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable}`}>
+      <body className={`${serif.variable}`}>
       <LenisProvider />
         {children}
       </body>

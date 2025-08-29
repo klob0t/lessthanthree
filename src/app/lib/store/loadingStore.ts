@@ -11,7 +11,7 @@ export const useLoadingStore = create<LoadingState>((set) => ({
    isAppLoading: true,
 
    startLoading: (id) => {
-      console.log(`%c -> startLoading called from: [${id}]`, 'color: lightblue')
+      // console.log(`%c -> startLoading called from: [${id}]`, 'color: lightblue')
       set((state) => {
          const newLoaders = new Map(state.activeLoaders)
          newLoaders.set(id, (newLoaders.get(id) || 0) + 1)
@@ -20,7 +20,7 @@ export const useLoadingStore = create<LoadingState>((set) => ({
    },
 
    finishLoading: (id) => {
-      console.log(`%c <- finishLoading called from: [${id}]`, 'color: lightgreen')
+      // console.log(`%c <- finishLoading called from: [${id}]`, 'color: lightgreen')
       set((state) => {
          const newLoaders = new Map(state.activeLoaders)
          const currentCount = newLoaders.get(id)
@@ -40,5 +40,5 @@ export const useLoadingStore = create<LoadingState>((set) => ({
 }))
 
 useLoadingStore.subscribe((state) => {
-   console.log('%c Loader count:', 'color: yellow', state.activeLoaders)
+   // console.log('%c Loader count:', 'color: yellow', state.activeLoaders)
 })
