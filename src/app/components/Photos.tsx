@@ -26,28 +26,41 @@ export default function Photos({ trigger }: { trigger: React.RefObject<HTMLEleme
       setIsClient(true)
    }, [])
 
-   // useGSAP(() => {
+   useGSAP(() => {
+      if (!trigger.current || !photoPageRef.current) return
 
-   //    const el = gsap.utils.toArray(trigger.current)
+      const el = gsap.utils.toArray(trigger.current.children)
+      const imageArray = gsap.utils.toArray<HTMLImageElement>(
+         photoPageRef.current?.querySelectorAll("img") || []
+      )
+      gsap.fromTo(imageArray, {
+         opacity: 0
+      }, {
+         opacity: 0.5,
+         stagger: {
+            each: 0.05,
+            from: 'random'
+         },
+         scrollTrigger: {
+            start: 'top top',
+            markers: true,
+            trigger: photoPageRef.current,
+            toggleActions: 'play reverse play reverse',
+            pin: photoPageRef.current,
+            pinSpacing: true,
+            invalidateOnRefresh: true,
+            anticipatePin: 1
+         }
+      })
 
-   //    console.log(el[1])
+      ScrollTrigger.refresh()
 
-   //    const heroTrig = el[0]
-   //    const photoTrig = el[1]
-   //    const letterTrig = el[2]
-
-   //    gsap.to(photoPageRef.current, {
-   //       opacity: 1,
-   //       scrollTrigger: {
-   //          trigger: heroTrig,
-   //          endTrigger: letterTrig,
-   //          start: 'bottom top',
-   //          end: 'top top',
-   //          markers: true,
-   //          pin: true
-   //       }
-   //    })
-   // }, { dependencies: [images, trigger] })
+      return () => {
+         // cleanup: kill the tween and its ScrollTrigger if component updates/unmounts
+         tween.scrollTrigger?.kill();
+         tween.kill();
+      };
+   }, { dependencies: [photoPageRef.current], revertOnUpdate: true })
 
    useEffect(() => {
       const fetchImages = async () => {
@@ -79,6 +92,7 @@ export default function Photos({ trigger }: { trigger: React.RefObject<HTMLEleme
 
    return (
       <div className={styles.photoPage} ref={photoPageRef}>
+
          <ResponsiveMasonry
             columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 7 }}
          >

@@ -1,4 +1,3 @@
-// src/app/components/LenisProvider.tsx
 'use client'
 
 import { useEffect } from 'react'
@@ -10,17 +9,17 @@ export default function LenisProvider() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // register plugin — MUST run before using ScrollTrigger APIs
+    
     try {
       gsap.registerPlugin(ScrollTrigger)
     } catch (e) {
-      // harmless if already registered, but log otherwise
-      // eslint-disable-next-line no-console
+      
+      
       console.warn('gsap.registerPlugin(ScrollTrigger) failed or already registered', e)
     }
 
-    // quick sanity check to help debugging
-    // eslint-disable-next-line no-console
+    
+    
     console.log('gsap, ScrollTrigger:', !!gsap, !!ScrollTrigger, typeof ScrollTrigger === 'object' || typeof ScrollTrigger === 'function')
 
     const lenis = new Lenis({
@@ -31,9 +30,9 @@ export default function LenisProvider() {
 
     const scroller = document.scrollingElement || document.documentElement
 
-    // Ensure ScrollTrigger is available
+    
     if (!ScrollTrigger || typeof ScrollTrigger.scrollerProxy !== 'function') {
-      // eslint-disable-next-line no-console
+      
       console.error('ScrollTrigger not available. Did gsap.registerPlugin(ScrollTrigger) succeed?')
       return () => {
         lenis.destroy()
@@ -70,11 +69,11 @@ export default function LenisProvider() {
       cancelAnimationFrame(rafId)
       lenis.off('scroll', onScroll)
       lenis.destroy()
-      // clear the proxy (defensive)
+      
       try {
         ScrollTrigger.scrollerProxy(scroller as Element, null as any)
       } catch (e) {
-        // ignore
+        console.error(e)
       }
       window.removeEventListener('resize', onResize)
     }

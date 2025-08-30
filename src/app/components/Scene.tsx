@@ -137,6 +137,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                 position: 'fixed',
                 width: '100dvw',
                 height: '100vh',
+                zIndex: 2,
                 pointerEvents: 'none'
             }}
             gl={{

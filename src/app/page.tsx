@@ -23,20 +23,21 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
+
+      <Scene trigger={sceneRef} />
       <div className={styles.grid} ref={sceneRef}>
         <div className={styles.hero}>
-        <Hero />
+          <Hero />
         </div>
         <div className={styles.photo}>
-        <Photos trigger={sceneRef}/>
+          <Photos trigger={sceneRef} />
         </div>
         <div className={styles.letter}>
-        heyy
+        
         </div>
         <div className={styles.ending}>
-        heyy
+          
         </div>
-      <Scene trigger={sceneRef} />
       </div>
     </main>
   )
