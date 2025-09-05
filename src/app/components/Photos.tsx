@@ -27,40 +27,51 @@ export default function Photos({ trigger }: { trigger: React.RefObject<HTMLEleme
    }, [])
 
    useGSAP(() => {
-      if (!trigger.current || !photoPageRef.current) return
+      if (!trigger.current || !photoPageRef.current || images.length === 0) return
 
-      const el = gsap.utils.toArray(trigger.current.children)
+      const el = gsap.utils.toArray(trigger.current.children || [])
+      const pin = photoPageRef.current.querySelector('div')
+
+      console.log(pin) 
       const imageArray = gsap.utils.toArray<HTMLImageElement>(
-         photoPageRef.current?.querySelectorAll("img") || []
+         photoPageRef.current.querySelectorAll("img") || []
       )
-      gsap.fromTo(imageArray, {
-         opacity: 0
-      }, {
-         opacity: 0.5,
-         stagger: {
-            each: 0.05,
-            from: 'random'
-         },
-         scrollTrigger: {
-            start: 'top top',
-            markers: true,
-            trigger: photoPageRef.current,
-            toggleActions: 'play reverse play reverse',
-            pin: photoPageRef.current,
-            pinSpacing: true,
-            invalidateOnRefresh: true,
-            anticipatePin: 1
-         }
+
+      gsap.set(photoPageRef.current, {
+         opacity: 1
+      })
+
+      // 1. Store the ScrollTrigger instance in a variable
+      const st = ScrollTrigger.create({
+         trigger: photoPageRef.current,
+         start: 'top top',
+         endTrigger: el[3],
+         end: 'bottom center',
+         pin: photoPageRef.current,
+         markers: true,
+         invalidateOnRefresh: true,
+
+         onEnter: () => gsap.to(imageArray, {
+            opacity: 0.75,
+            overwrite: true,
+            stagger: {
+               each: 0.05,
+               from: 'random'
+            }
+         }),
+         onLeaveBack: () => gsap.to(imageArray, {
+            opacity: 0,
+            overwrite: true,
+            stagger: {
+               each: 0.05,
+               from: 'random'
+            }
+         })
       })
 
       ScrollTrigger.refresh()
 
-      return () => {
-         // cleanup: kill the tween and its ScrollTrigger if component updates/unmounts
-         tween.scrollTrigger?.kill();
-         tween.kill();
-      };
-   }, { dependencies: [photoPageRef.current], revertOnUpdate: true })
+   }, { dependencies: [photoPageRef.current, images, trigger.current] })
 
    useEffect(() => {
       const fetchImages = async () => {
@@ -94,8 +105,7 @@ export default function Photos({ trigger }: { trigger: React.RefObject<HTMLEleme
       <div className={styles.photoPage} ref={photoPageRef}>
 
          <ResponsiveMasonry
-            columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 7 }}
-         >
+            columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 7 }}>
             <Masonry gutter='1rem'>
                {images.map((image) => (
                   <TrackedImage
@@ -106,7 +116,7 @@ export default function Photos({ trigger }: { trigger: React.RefObject<HTMLEleme
                      height={0}
                      loading='eager'
                      sizes='100vw'
-                     style={{ width: '100%', height: 'auto', filter: 'grayscale(1)', opacity: 0.4 }}
+                     style={{ width: '100%', height: 'auto', filter: 'grayscale(1)' }}
                   />
                ))}
             </Masonry>
