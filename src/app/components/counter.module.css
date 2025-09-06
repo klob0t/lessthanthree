@@ -8,6 +8,7 @@
    align-items: center;
    justify-content: center;
    display: flex;
+   gap: 0rem;
    flex-direction: column;
 }
 
@@ -15,11 +16,18 @@
    font-size: 3rem;
    margin: 0; padding: 0;
    z-index: 2;
+   letter-spacing: -0.2rem;
+   line-height: 3rem;
 }
 
 .counter h1 {
    font-style: normal;
    font-weight: 100;
    margin: 0; padding: 0;
+   transform: translateY(1rem);
+   line-height: 8rem;
    font-size: 8rem;
+   vertical-align: middle;
+   margin-block-end: 0; margin-block-start: 0;
+   text-align: center;
 }

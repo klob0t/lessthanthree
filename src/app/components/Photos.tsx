@@ -30,9 +30,6 @@ export default function Photos() {
    useGSAP(() => {
       if (!photoPageRef.current || images.length === 0) return
 
-      const pin = photoPageRef.current.querySelector('div')
-
-      console.log(pin)
       const imageArray = gsap.utils.toArray<HTMLImageElement>(
          photoPageRef.current.querySelectorAll("img") || []
       )

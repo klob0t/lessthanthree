@@ -63,12 +63,15 @@ export default function Counter({ trigger }: { trigger: React.RefObject<HTMLElem
             each: 0.06
           }
         }).to(counting.current, {
-          duration: 4,
           opacity: 1,
+          duration: 2,
+          ease: 'power2.in'
+        }, '>').to(counting.current, {
+          duration: 3,
           textContent: daysCount,
           roundProps: "textContent",
-          ease: "power4.out",
-        }, '>').to(botChars.chars, {
+          ease: "power4.inOut",
+        }, '<').to(botChars.chars, {
           opacity: 1,
           y: '0px',
           overwrite: true,

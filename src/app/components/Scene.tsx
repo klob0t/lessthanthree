@@ -3,12 +3,17 @@
 'use client'
 import React, { Suspense, useRef } from 'react'
 import { Canvas, } from '@react-three/fiber'
-import { Environment } from '@react-three/drei'
+import { Bvh, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+// import RealismEffectsSSR from '@/app/lib/utils/RealismEffects'
+import { BlendFunction, KernelSize, Resolution } from 'postprocessing'
+import { Bloom, EffectComposer, Noise, ChromaticAberration, BrightnessContrast, SMAA } from '@react-three/postprocessing'
+import { N8AO } from '@react-three/postprocessing'
+// import {}
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -20,13 +25,11 @@ interface GLTFResult {
         mesh001: THREE.Mesh
         mesh001_1: THREE.Mesh
         mesh001_2: THREE.Mesh
-        mesh001_3: THREE.Mesh
     }
     materials: {
+        LEAVES: THREE.MeshStandardMaterial
         RED: THREE.MeshStandardMaterial
-        YELLOW: THREE.MeshStandardMaterial
-        LEAVES: THREE.MeshPhysicalMaterial
-        PUTIK: THREE.MeshStandardMaterial
+        STEM: THREE.MeshStandardMaterial
     }
 }
 
@@ -34,6 +37,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
     const { nodes, materials } = useGLTF('/3d/flower.glb') as unknown as GLTFResult
     const modelGroupRef = useRef<THREE.Group>(null)
     const rotationGroupRef = useRef<THREE.Group>(null)
+    const targetRef = useRef<THREE.Object3D>(undefined)
     const initPos: [number, number, number] = [0, 7, 0];
     const initRot: [number, number, number] = [Math.PI / 0.5, 0, 0];
 
@@ -63,7 +67,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
 
             if (created) return;
             created = true;
-            
+
             const model = modelGroupRef.current!;
             const rotation = rotationGroupRef.current!;
 
@@ -79,9 +83,10 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             })
 
             tl.to(model.position, {
-                y: 4.5,
-                x: 1.5,
-                z: 1,
+
+                x: 0,
+                y: 7.7,
+                z: 0.24,
                 ease: 'power1.inOut',
                 scrollTrigger: {
                     trigger: heroTrig,
@@ -138,41 +143,68 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                 pointerEvents: 'none'
             }}
             gl={{
-                toneMapping: THREE.ACESFilmicToneMapping,
-                outputColorSpace: THREE.SRGBColorSpace,
+                antialias: true,
+                // toneMapping: THREE.ACESFilmicToneMapping,
+                // outputColorSpace: THREE.SRGBColorSpace,
             }}
         >
-            <Suspense fallback={null}>
-                <Environment files='/images/hdri/sunrise.jpg' />
-                <group
-                    ref={modelGroupRef}
-                    position={initPos}
-                    rotation={initRot}>
+
+            <Bvh>
+                <Suspense fallback={null}>
+                    <Environment files='/images/hdri/sunrise.jpg' environmentIntensity={0.5}/>
+                    {/* <directionalLight intensity={6} /> */}
+                    <pointLight
+                        castShadow
+                        color='white'
+                        position={[-4, 1, -6]}
+                        intensity={Math.PI * 1} />
+                    <spotLight
+                        castShadow
+                        position={[8, 4, -2]}
+                        target={targetRef.current}
+                        color='orange'
+                        intensity={Math.PI * 700} />
                     <group
-                        ref={rotationGroupRef}
+                        ref={modelGroupRef}
+                        position={initPos}
                         rotation={initRot}>
-                        <mesh castShadow receiveShadow geometry={nodes.mesh001.geometry} material={materials.RED} />
-                        <mesh
-                            castShadow
-                            receiveShadow
-                            geometry={nodes.mesh001_1.geometry}
-                            material={materials.YELLOW}
-                        />
-                        <mesh
-                            castShadow
-                            receiveShadow
-                            geometry={nodes.mesh001_2.geometry}
-                            material={materials.LEAVES}
-                        />
-                        <mesh
-                            castShadow
-                            receiveShadow
-                            geometry={nodes.mesh001_3.geometry}
-                            material={materials.PUTIK}
-                        />
+                        <group
+                            ref={rotationGroupRef}
+                            rotation={initRot}>
+                            <mesh
+                                geometry={nodes.mesh001.geometry}
+                                material={materials.LEAVES}
+                            />
+                            <mesh
+                                castShadow
+                                receiveShadow
+                                geometry={nodes.mesh001_1.geometry}
+                                material={materials.RED}
+                                ref={targetRef}
+                            />
+                            <mesh
+                                geometry={nodes.mesh001_2.geometry}
+                                material={materials.STEM}
+                            />
+                        </group>
                     </group>
-                </group>
-            </Suspense>
+                    <EffectComposer>
+                        <N8AO
+                            quality="low" // 'low', 'medium', 'high', 'ultra'
+                            aoRadius={6} // The radius of the occlusion effect
+                            intensity={2} // How strong the effect is
+                            aoSamples={2}
+                            distanceFalloff={5} // How fast the effect fades with distance
+                        /><Bloom
+                            intensity={1.0} // The bloom intensity.
+                            blurPass={undefined} // A blur pass.
+                            luminanceThreshold={0.9} // luminance threshold. Raise this value to mask out darker elements in the scene.
+                            luminanceSmoothing={1} // smoothness of the luminance threshold. Range is [0, 1]
+                        />
+                    </EffectComposer>
+                </Suspense>
+
+            </Bvh>
         </Canvas>
     )
 }
