@@ -23,22 +23,29 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
-
-      <Scene trigger={sceneRef} />
+      <div
+        style={{
+          position: 'fixed',
+          width: '100dvw',
+          height: '100dvh',
+          zIndex: 2
+        }}
+      >
+        <Scene trigger={sceneRef} />
+      </div>
       <div className={styles.grid} ref={sceneRef}>
         <div className={styles.hero}>
           <Hero />
         </div>
         <div className={styles.photo}>
-          <Photos trigger={sceneRef} />
+          <Photos />
         </div>
         <div className={styles.letter}>
-        
         </div>
         <div className={styles.ending}>
-          
         </div>
       </div>
+
     </main>
   )
 }

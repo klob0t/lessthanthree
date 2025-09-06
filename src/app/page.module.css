@@ -1,7 +1,3 @@
-.main {
-  opacity: 1;
-}
-
 .grid {
   display: grid;
   width: 100%;
@@ -16,13 +12,9 @@
   height: 100%;
 }
 
-.grid>div {
-  height: 100%;
-  width: 100%;
-  outline: 1px solid red;
-  position: relative;
-  /* margin: 1em; */
-}
+
 .photo {
+  height: 100%;
+  position: relative;
   height: 100%;
 }

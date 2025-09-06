@@ -44,15 +44,17 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
         let tl: TimelineWithScroll | null = null;
         let created = false;
 
-        const el = gsap.utils.toArray(trigger.current.children)
-
-
-        const heroTrig = el[0]
-        const photoTrig = el[1]
-        const letterTrig = el[2]
 
         const trySetup = () => {
             if (!trigger || !trigger.current) return;
+
+
+            const children = Array.from(trigger.current.children) as HTMLElement[]
+
+
+            const heroTrig = children[0] ?? null
+            const photoTrig = children[1] ?? null
+            const letterTrig = children[2] ?? null
 
             if (!nodes || !modelGroupRef.current || !rotationGroupRef.current) {
                 rafId = requestAnimationFrame(trySetup);
@@ -61,8 +63,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
 
             if (created) return;
             created = true;
-
-            const trigEl = trigger.current!;
+            
             const model = modelGroupRef.current!;
             const rotation = rotationGroupRef.current!;
 
@@ -75,35 +76,34 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                 ease: 'none',
                 repeat: -1,
                 duration: 10
-            })  
+            })
 
             tl.to(model.position, {
-                y: 4,
+                y: 4.5,
                 x: 1.5,
                 z: 1,
                 ease: 'power1.inOut',
                 scrollTrigger: {
-                    trigger: el[0],
+                    trigger: heroTrig,
                     scrub: true,
                     // markers: true,
-                    start: '60 top',
+                    start: 'top top',
                     endTrigger: photoTrig,
-                    end: 'center center'
+                    end: 'center top'
                 },
             }, 0)
-            tl.to(model.rotation,
-                {
-                    x: Math.PI / 0.7,
-                    y: 0,
-                    ease: 'power1.inOut',
-                    scrollTrigger: {
-                        trigger: el[0],
-                        scrub: true,
-                        start: '60 top',
-                        endTrigger: photoTrig,
-                        end: 'center center',
-                    }
-                }, 0)
+            tl.to(model.rotation, {
+                x: Math.PI / 0.7,
+                y: 0,
+                ease: 'power1.inOut',
+                scrollTrigger: {
+                    trigger: heroTrig,
+                    scrub: true,
+                    start: 'top top',
+                    endTrigger: photoTrig,
+                    end: 'center top',
+                }
+            }, 0)
 
             ScrollTrigger.refresh();
         };
@@ -118,14 +118,11 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                     tl.kill();
                     if (st) st.kill();
                 } catch (e) {
-                    // ignore
+                    console.error(e)
                 }
             }
-        };
-    }, {
-        dependencies: [trigger, nodes],
-        scope: trigger.current,
-    });
+        }
+    }, { dependencies: [trigger, nodes], scope: trigger })
 
 
     return (
