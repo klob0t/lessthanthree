@@ -48,7 +48,7 @@ export default function Photos() {
             opacity: 0.3,
             overwrite: true,
             stagger: {
-               each: 0.006,
+               each: 0.05,
                from: 'random'
             }
          }),
@@ -112,7 +112,7 @@ export default function Photos() {
                         height={0}
                         loading='eager'
                         sizes='20vw'
-                        quality={20}
+                        quality={5}
                         style={{ width: '100%', height: 'auto', filter: 'grayscale(1)' }}
                      />
                   ))}

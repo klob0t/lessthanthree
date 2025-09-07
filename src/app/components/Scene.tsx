@@ -1,15 +1,14 @@
 // src/app/components/Scene.tsx
 
 'use client'
-import React, { Suspense, useRef } from 'react'
-import { Canvas, } from '@react-three/fiber'
+import React, { Suspense, useEffect, useRef } from 'react'
+import { Canvas, useFrame, useThree, } from '@react-three/fiber'
 import { Bvh, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-// import RealismEffectsSSR from '@/app/lib/utils/RealismEffects'
 import { BlendFunction, KernelSize, Resolution } from 'postprocessing'
 import { Bloom, EffectComposer, Noise, ChromaticAberration, BrightnessContrast, SMAA } from '@react-three/postprocessing'
 import { N8AO } from '@react-three/postprocessing'
@@ -31,6 +30,15 @@ interface GLTFResult {
         RED: THREE.MeshStandardMaterial
         STEM: THREE.MeshStandardMaterial
     }
+}
+
+export function RotatorUseFrame({ refGroup }: { refGroup: React.RefObject<THREE.Group | null> }) {
+    useFrame((_, delta) => {
+        const g = refGroup.current
+        if (!g) return
+        g.rotation.y += delta * (Math.PI * 0.2) // rad/s
+    })
+    return null
 }
 
 export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElement | null> }) {
@@ -69,24 +77,16 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             created = true;
 
             const model = modelGroupRef.current!;
-            const rotation = rotationGroupRef.current!;
 
             tl = gsap.timeline({
             }) as TimelineWithScroll;
 
 
-            gsap.to(rotation.rotation, {
-                y: Math.PI * 2,
-                ease: 'none',
-                repeat: -1,
-                duration: 10
-            })
-
             tl.to(model.position, {
 
                 x: 0,
-                y: 7.7,
-                z: 0.24,
+                y: 3,
+                z: 1.6,
                 ease: 'power1.inOut',
                 scrollTrigger: {
                     trigger: heroTrig,
@@ -133,6 +133,8 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
     return (
         <Canvas
             shadows
+            // frameloop='demand'
+            dpr={[0.6, 0.8]}
             camera={{ fov: 55, position: [0, 8, 0] }}
             style={{
                 backgroundColor: 'transparent',
@@ -143,27 +145,31 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                 pointerEvents: 'none'
             }}
             gl={{
-                antialias: true,
+                antialias: false,
+                powerPreference: 'high-performance',
                 // toneMapping: THREE.ACESFilmicToneMapping,
                 // outputColorSpace: THREE.SRGBColorSpace,
             }}
         >
 
-            <Bvh>
-                <Suspense fallback={null}>
-                    <Environment files='/images/hdri/sunrise.jpg' environmentIntensity={0.5}/>
-                    {/* <directionalLight intensity={6} /> */}
-                    <pointLight
-                        castShadow
-                        color='white'
-                        position={[-4, 1, -6]}
-                        intensity={Math.PI * 1} />
-                    <spotLight
-                        castShadow
-                        position={[8, 4, -2]}
-                        target={targetRef.current}
-                        color='orange'
-                        intensity={Math.PI * 700} />
+
+            <Suspense fallback={null}>
+                <Environment
+                    files='/images/hdri/sunrise.jpg'
+                    environmentIntensity={0.2} />
+                {/* <directionalLight intensity={6} /> */}
+                <pointLight
+                    castShadow
+                    color='white'
+                    position={[-4, 1, -6]}
+                    intensity={Math.PI * 1} />
+                <spotLight
+                    castShadow
+                    position={[8, 4, -2]}
+                    target={targetRef.current}
+                    color='orange'
+                    intensity={Math.PI * 700} />
+                <Bvh>
                     <group
                         ref={modelGroupRef}
                         position={initPos}
@@ -188,23 +194,23 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                             />
                         </group>
                     </group>
-                    <EffectComposer>
-                        <N8AO
-                            quality="low" // 'low', 'medium', 'high', 'ultra'
-                            aoRadius={6} // The radius of the occlusion effect
-                            intensity={2} // How strong the effect is
-                            aoSamples={2}
-                            distanceFalloff={5} // How fast the effect fades with distance
-                        /><Bloom
-                            intensity={1.0} // The bloom intensity.
-                            blurPass={undefined} // A blur pass.
-                            luminanceThreshold={0.9} // luminance threshold. Raise this value to mask out darker elements in the scene.
-                            luminanceSmoothing={1} // smoothness of the luminance threshold. Range is [0, 1]
-                        />
-                    </EffectComposer>
-                </Suspense>
-
-            </Bvh>
+                </Bvh>
+                <EffectComposer>
+                    <N8AO
+                        quality="low"
+                        // screenSpaceRadius // 'low', 'medium', 'high', 'ultra'
+                        aoRadius={1} // The radius of the occlusion effect
+                        intensity={2} // How strong the effect is
+                        aoSamples={1}
+                        distanceFalloff={10} // How fast the effect fades with distance
+                    />
+                    <Bloom
+                        luminanceThreshold={0.4}
+                        luminanceSmoothing={0}
+                        intensity={20} />
+                </EffectComposer>
+                <RotatorUseFrame refGroup={rotationGroupRef} />
+            </Suspense>
         </Canvas>
     )
 }

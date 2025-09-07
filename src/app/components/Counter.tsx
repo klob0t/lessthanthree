@@ -48,7 +48,6 @@ export default function Counter({ trigger }: { trigger: React.RefObject<HTMLElem
 
     ScrollTrigger.create({
       trigger: trigger.current,
-      markers: true,
       start: 'top top',
       end: 'bottom top',
       onEnter: () => {
@@ -64,10 +63,10 @@ export default function Counter({ trigger }: { trigger: React.RefObject<HTMLElem
           }
         }).to(counting.current, {
           opacity: 1,
-          duration: 2,
+          duration: 3,
           ease: 'power2.in'
         }, '>').to(counting.current, {
-          duration: 3,
+          duration: 4,
           textContent: daysCount,
           roundProps: "textContent",
           ease: "power4.inOut",
