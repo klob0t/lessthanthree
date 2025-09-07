@@ -3,14 +3,14 @@
 'use client'
 import React, { Suspense, useEffect, useRef } from 'react'
 import { Canvas, useFrame, useThree, } from '@react-three/fiber'
-import { Bvh, Environment } from '@react-three/drei'
+import { AccumulativeShadows, Bvh, Environment, RandomizedLight } from '@react-three/drei'
 import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { BlendFunction, KernelSize, Resolution } from 'postprocessing'
-import { Bloom, EffectComposer, Noise, ChromaticAberration, BrightnessContrast, SMAA } from '@react-three/postprocessing'
+import { Bloom, EffectComposer, Noise, ChromaticAberration, BrightnessContrast, SMAA, Vignette, ToneMapping } from '@react-three/postprocessing'
 import { N8AO } from '@react-three/postprocessing'
 // import {}
 
@@ -156,6 +156,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             <Suspense fallback={null}>
                 <Environment
                     files='/images/hdri/sunrise.jpg'
+                    // preset='lobby'
                     environmentIntensity={0.2} />
                 {/* <directionalLight intensity={6} /> */}
                 <pointLight
@@ -195,8 +196,15 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                         </group>
                     </group>
                 </Bvh>
+                {/* <AccumulativeShadows color="orange" colorBlend={4} temporal frames={100} scale={25}>
+                    <RandomizedLight radius={6} position={[-5, 9, -5]} />
+                </AccumulativeShadows> */}
                 <EffectComposer>
-                    <N8AO
+                    <Bloom mipmapBlur intensity={1} luminanceThreshold={0.1} />
+                    <N8AO aoRadius={20} intensity={4} screenSpaceRadius />
+                    <Vignette offset={0.4} darkness={0.4} />
+                    <ToneMapping />
+                    {/* <N8AO
                         quality="low"
                         // screenSpaceRadius // 'low', 'medium', 'high', 'ultra'
                         aoRadius={1} // The radius of the occlusion effect
@@ -207,7 +215,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                     <Bloom
                         luminanceThreshold={0.4}
                         luminanceSmoothing={0}
-                        intensity={20} />
+                        intensity={20} /> */}
                 </EffectComposer>
                 <RotatorUseFrame refGroup={rotationGroupRef} />
             </Suspense>

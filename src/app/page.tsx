@@ -7,6 +7,7 @@ import Photos from '@/app/components/Photos'
 import Hero from '@/app/components/Hero'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import { useEffect, useRef } from 'react'
+import CounterSlot from './components/Counter'
 
 const Scene = dynamic(() => import('@/app/components/Scene'), {
   ssr: false,
@@ -35,17 +36,17 @@ export default function Home() {
       </div>
       <div className={styles.grid} ref={sceneRef}>
         <div className={styles.hero}>
-          <Hero />
-        </div>
-        <div className={styles.photo}>
-          <Photos />
-        </div>
-        <div className={styles.letter}>
-        </div>
-        <div className={styles.ending}>
-        </div>
+        <Hero />
       </div>
+      <div className={styles.photo}>
+        <Photos />
+      </div>
+      <div className={styles.letter}>
+      </div>
+      <div className={styles.ending}>
+      </div>
+    </div>
 
-    </main>
+    </main >
   )
 }

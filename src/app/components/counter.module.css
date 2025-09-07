@@ -1,33 +1,61 @@
-.counter {
-   height: 100vh;
-   width: 100vw;
-   z-index: 2;
-   font-family: var(--serif);
-   position: absolute;
-   color: var(--text);
-   align-items: center;
-   justify-content: center;
+.container {
    display: flex;
-   gap: 0rem;
    flex-direction: column;
+   justify-content: center;
+   align-items: center;
+   width: 100dvw;
+   height: 100dvh;
+   overflow: hidden;
 }
 
-.counter p {
-   font-size: 3rem;
-   margin: 0; padding: 0;
-   z-index: 2;
-   letter-spacing: -0.2rem;
-   line-height: 3rem;
-}
-
-.counter h1 {
-   font-style: normal;
+.container p {
+   padding: 0; margin: 0;
+   font-family: var(--serif);
+   font-size: 2rem;
    font-weight: 100;
-   margin: 0; padding: 0;
+   letter-spacing: -0.1rem;
+}
+
+.slotRow {
+   display: flex;
+   gap: 0px;
+   align-items: flex-end;
+   justify-content: center;
+}
+
+
+.reelMask {
+   width: 2.6rem;
+   height: 6rem;
+   overflow: hidden;
+   position: relative;
+   margin: 0;
+}
+
+.reelMask::after {
+   width: 100%; height: 100%;
+   top: 0; left: 0;
+   content: '';
+   position: absolute;
+   z-index: 1;
+}
+
+.reel {
+   opacity: 1;
+   
+}
+
+
+.digit {
+   width: 100%;
+   line-height: 6rem;
+   font-size: 6rem;
+   
+   display: flex;
    transform: translateY(1rem);
-   line-height: 8rem;
-   font-size: 8rem;
-   vertical-align: middle;
-   margin-block-end: 0; margin-block-start: 0;
-   text-align: center;
+   justify-content: center;
+   align-items: center;
+   font-weight: 100;
+   color: var(--text);
+   font-family: var(--serif);
 }

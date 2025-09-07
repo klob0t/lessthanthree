@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import { TrackedImage } from '@/app/lib/utils/TrackedImage'
-import Counter from './Counter'
+import CounterSlot from './Counter'
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
@@ -97,9 +97,10 @@ export default function Photos() {
    return (
       <div className={styles.photoPage} ref={photoPageRef}>
 
-         <Counter trigger={photoPageRef} />
+
+         <CounterSlot trigger={photoPageRef} />
          <div className={styles.pinWrapper} ref={pinRef}>
-         
+
             <ResponsiveMasonry
                columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 9 }}>
                <Masonry gutter='1rem'>
@@ -119,7 +120,7 @@ export default function Photos() {
                </Masonry>
             </ResponsiveMasonry>
          </div>
-         
+
       </div>
    )
 }
