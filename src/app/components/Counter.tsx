@@ -1,3 +1,5 @@
+// '@/app/components/Counter.tsx'
+
 'use client'
 import React, { useMemo, useRef } from 'react'
 import gsap from 'gsap'
@@ -93,12 +95,11 @@ export default function CounterSlot() {
          ScrollTrigger.create({
             trigger: container.current,
             start: 'top top',
-            markers: true,
             end: 'bottom top',
             onEnter: () => {
-
+               const digitEl = reel.querySelector<HTMLDivElement>('.digit')
+               const digitHeight = digitEl?.offsetHeight || 0
                const tl = gsap.timeline()
-
                tl.to(topChars.chars, {
                   opacity: 1,
                   y: '0px',
@@ -111,8 +112,10 @@ export default function CounterSlot() {
                   duration: 2,
                   ease: 'power2.in'
                }, '>').to(reel, {
-                  yPercent: finalYPercent,
+                  y: -totalTicks * digitHeight,
                   duration: 4,
+                  onStart: () => reel.classList.add('animating'),
+                  onComplete: () => reel.classList.remove('animating'),
                   ease: 'power4.inOut',
                }, '<').to(botChars.chars, {
                   opacity: 1,
@@ -121,7 +124,7 @@ export default function CounterSlot() {
                   stagger: {
                      each: 0.06
                   }
-               }, '>-1.5')
+               }, '>')
             },
             onLeaveBack: () => {
                gsap.to(topChars.chars, {
@@ -137,7 +140,9 @@ export default function CounterSlot() {
                gsap.to(reel, {
                   yPercent: 0,
                   duration: 2,
-                  ease: 'power4.inOut'
+                  ease: 'power4.inOut',
+                  onStart: () => reel.classList.add('animating'),
+                  onComplete: () => reel.classList.remove('animating'),
                })
                gsap.to(odometer.current, {
                   opacity: 0,
@@ -165,7 +170,7 @@ export default function CounterSlot() {
                         ref={(el) => (reelRefs.current[i] = el)}
                      >
                         {stack.map((n: number, k: number) => (
-                           <div className={styles.digit} key={k}>
+                           <div className={`digit ${styles.digit}`} key={k}>
                               {n}
                            </div>
                         ))}

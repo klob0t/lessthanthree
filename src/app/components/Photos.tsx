@@ -1,3 +1,4 @@
+// '@/app/components/Photos.tsx'
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
@@ -97,7 +98,7 @@ export default function Photos() {
 
    return (
       <div className={styles.photoPage} ref={photoPageRef}>
-         <CounterSlot trigger={photoPageRef.current} />
+         <CounterSlot trigger={photoPageRef} />
          <div className={styles.pinWrapper} ref={pinRef}>
             <ResponsiveMasonry
                columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 9 }}>
@@ -109,7 +110,8 @@ export default function Photos() {
                         alt={image.alt}
                         width={0}
                         height={0}
-                        loading='eager'
+                        loading='lazy'
+                        decoding="async"
                         sizes='20vw'
                         quality={5}
                         style={{ width: '100%', height: 'auto' }}

@@ -41,7 +41,10 @@
 
 .reel {
    opacity: 1;
+}
 
+.reel.animating {
+   will-change: transform;
 }
 
 

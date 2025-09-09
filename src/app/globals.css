@@ -1,5 +1,5 @@
 :root {
-  --background: #f7f4f0;
+  --background: #f3f2ec;
   --text: rgb(48, 42, 26);
 }
 
@@ -7,11 +7,12 @@ html {
   width: 100dvw;
   height: 100dvh;
   overflow-x: hidden;
-  scrollbar-gutter: stable;
+  scrollbar-gutter: auto;
 
   padding: 0;
   margin: 0;
-  scrollbar-color: white white;
+  scrollbar-color: var(--background) var(--background);
+  scrollbar-width: 0px;
 }
 
 body {

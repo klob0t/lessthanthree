@@ -1,6 +1,6 @@
 // src/app/components/Scene.tsx
 'use client'
-import React, { Suspense, useRef, useState, useEffect } from 'react'
+import React, { Suspense, useRef } from 'react'
 import { Canvas, useFrame, } from '@react-three/fiber'
 import { Bvh, Environment } from '@react-three/drei'
 import * as THREE from 'three'
@@ -8,8 +8,8 @@ import { useGLTF } from '@react-three/drei'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
+import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -41,34 +41,12 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
     const { nodes, materials } = useGLTF('/3d/flower.glb') as unknown as GLTFResult
     const modelGroupRef = useRef<THREE.Group>(null)
     const rotationGroupRef = useRef<THREE.Group>(null)
-    const activeLoadersCount = useLoadingStore(state => state.activeLoaders.size)
-
-    const [isLoaded, setIsLoaded] = useState(false)
-
     const targetRef = useRef<THREE.Object3D>(undefined)
-    const initPos: [number, number, number] = [0, 7, 0];
-    const initRot: [number, number, number] = [Math.PI / 0.5, 0, 0]
-
-    // useEffect(() => {
-    //     if (activeLoadersCount > 0) {
-    //         setIsLoaded(false)
-    //         return
-    //     }
-
-    //     const timeoutId = setTimeout(() => {
-    //         if (useLoadingStore.getState().activeLoaders.size === 0) {
-    //             setIsLoaded(true)
-    //         }
-    //     }, 100)
-
-    //     console.log(activeLoadersCount)
-
-    //     return () => clearTimeout(timeoutId)
-    // }, [activeLoadersCount])
-
+    const initRot: [number, number, number] = [Math.PI / 0.5, 0, 0];
+    const isLoaded = useLoadingStore(state => state.activeLoaders.size === 0)
 
     useGSAP(() => {
-        if (!trigger || !trigger.current) return;
+        if (!trigger || !isLoaded) return;
 
         let rafId: number | null = null;
         let tl: TimelineWithScroll | null = null;
@@ -94,28 +72,45 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             if (created) return;
             created = true;
 
-            const model = modelGroupRef.current!
+            const model = modelGroupRef.current!;
+
+            gsap.set(model.scale, {
+                x: 0,
+                y: 0,
+                z: 0
+            })
+            gsap.set(model.position, {
+                x: 0,
+                y: 7,
+                z: 0
+            })
+
+            gsap.to(model.scale, {
+                x: 1,
+                y: 1,
+                z: 1,
+                duration: 3,
+                ease: 'power3.inOut'
+            })
 
             tl = gsap.timeline({
             }) as TimelineWithScroll;
 
 
             tl.to(model.position, {
-
                 x: 0,
                 y: 3,
                 z: 1.6,
+                overwrite: true,
                 ease: 'power1.inOut',
                 scrollTrigger: {
                     trigger: heroTrig,
                     scrub: true,
-                    // markers: true,
                     start: 'top top',
                     endTrigger: photoTrig,
                     end: 'center top'
                 },
-            }, 0)
-            tl.to(model.rotation, {
+            }, 0).to(model.rotation, {
                 x: Math.PI / 0.7,
                 y: 0,
                 ease: 'power1.inOut',
@@ -126,7 +121,19 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                     endTrigger: photoTrig,
                     end: 'center top',
                 }
-            }, 0)
+            }, 0).to(model.position, {
+                x: 1,
+                y: 3,
+                z: 1.6,
+                ease: 'power1.inOut',
+                scrollTrigger: {
+                    trigger: photoTrig,
+                    scrub: true,
+                    start: 'bottom top',
+                    endTrigger: letterTrig,
+                    end: 'bottom top'
+                },
+            })
 
             ScrollTrigger.refresh();
         };
@@ -145,7 +152,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                 }
             }
         }
-    }, { dependencies: [trigger, nodes], scope: trigger })
+    }, { dependencies: [trigger, nodes, isLoaded], scope: trigger })
 
 
     return (
@@ -170,7 +177,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             <Suspense fallback={null}>
                 <Environment
                     files='/images/hdri/sunrise.jpg'
-                    environmentIntensity={0.2} />
+                    environmentIntensity={0.1} />
                 <pointLight
                     castShadow
                     color='white'
@@ -178,15 +185,13 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                     intensity={Math.PI * 1} />
                 <spotLight
                     castShadow
-                    position={[8, 4, -2]}
+                    position={[8, 6, -2]}
                     target={targetRef.current}
                     color='orange'
                     intensity={Math.PI * 700} />
                 <Bvh>
                     <group
                         ref={modelGroupRef}
-                        position={initPos}
-                        scale={[0, 0, 0]}
                         rotation={initRot}>
                         <group
                             ref={rotationGroupRef}

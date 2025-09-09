@@ -20,7 +20,7 @@ export const useLoadingStore = create<LoadingState>((set) => ({
    },
 
    finishLoading: (id) => {
-      console.log(`%c <- finishLoading called from: [${id}]`, 'color: lightgreen')
+      // console.log(`%c <- finishLoading called from: [${id}]`, 'color: lightgreen')
       set((state) => {
          const newLoaders = new Map(state.activeLoaders)
          const currentCount = newLoaders.get(id)

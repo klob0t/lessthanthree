@@ -6,8 +6,11 @@
    color: var(--text);
    flex-direction: column;
    justify-content: space-between;
-   /* background-color: red; */
    margin: 0;
+   opacity: 0;
+   padding-right: 1.8rem;
+   padding-left: 1.8rem;
+   padding-top: 1.8rem
 }
 
 
@@ -19,7 +22,6 @@
    margin: 0;
    padding-top: 5rem;
    line-height: 11rem;
-   opacity: 0;
 }
 
 .heroPage p > span {

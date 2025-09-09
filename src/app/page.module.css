@@ -6,6 +6,10 @@
   grid-template-rows: repeat(4, 1fr);
 }
 
+.main {
+  background-color: var(--background);
+}
+
 .flower {
   width: 100%;
   position: relative;

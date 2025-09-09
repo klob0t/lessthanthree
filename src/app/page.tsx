@@ -7,7 +7,6 @@ import Photos from '@/app/components/Photos'
 import Hero from '@/app/components/Hero'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import { useEffect, useRef } from 'react'
-import CounterSlot from './components/Counter'
 
 const Scene = dynamic(() => import('@/app/components/Scene'), {
   ssr: false,
