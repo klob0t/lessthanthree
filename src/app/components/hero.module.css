@@ -19,6 +19,7 @@
    margin: 0;
    padding-top: 5rem;
    line-height: 11rem;
+   opacity: 0;
 }
 
 .heroPage p > span {

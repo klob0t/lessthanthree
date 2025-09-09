@@ -3,11 +3,14 @@
    overflow: hidden;
    /* background-color: pink; */
    position: relative;
+   filter: grayscale(1)
 }
 
 .photoPage img {
-  opacity: 0;          /* initial hidden state */
-  transition: none;    /* let GSAP handle the animation */
+   opacity: 0;
+   /* initial hidden state */
+   transition: none;
+   /* let GSAP handle the animation */
 }
 
 .pinWrapper {

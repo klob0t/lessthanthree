@@ -45,7 +45,7 @@ export default function Photos() {
          invalidateOnRefresh: true,
 
          onEnter: () => gsap.to(imageArray, {
-            opacity: 0.3,
+            autoAlpha: 0.3,
             overwrite: true,
             stagger: {
                each: 0.05,
@@ -53,7 +53,7 @@ export default function Photos() {
             }
          }),
          onLeaveBack: () => gsap.to(imageArray, {
-            opacity: 0,
+            autoAlpha: 0,
             overwrite: true,
             stagger: {
                each: 0.006,
@@ -65,6 +65,7 @@ export default function Photos() {
       ScrollTrigger.refresh()
 
    }, { dependencies: [photoPageRef.current, images] })
+
 
    useEffect(() => {
       const fetchImages = async () => {
@@ -96,11 +97,8 @@ export default function Photos() {
 
    return (
       <div className={styles.photoPage} ref={photoPageRef}>
-
-
-         <CounterSlot trigger={photoPageRef} />
+         <CounterSlot trigger={photoPageRef.current} />
          <div className={styles.pinWrapper} ref={pinRef}>
-
             <ResponsiveMasonry
                columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 9 }}>
                <Masonry gutter='1rem'>
@@ -114,13 +112,12 @@ export default function Photos() {
                         loading='eager'
                         sizes='20vw'
                         quality={5}
-                        style={{ width: '100%', height: 'auto', filter: 'grayscale(1)' }}
+                        style={{ width: '100%', height: 'auto' }}
                      />
                   ))}
                </Masonry>
             </ResponsiveMasonry>
          </div>
-
       </div>
    )
 }

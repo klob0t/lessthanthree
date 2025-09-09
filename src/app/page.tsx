@@ -18,8 +18,8 @@ export default function Home() {
   const sceneRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    finishLoading('Initial Load')
-  }, [])
+    finishLoading('Initial Page Load')
+  }, [finishLoading])
 
 
   return (
@@ -36,16 +36,16 @@ export default function Home() {
       </div>
       <div className={styles.grid} ref={sceneRef}>
         <div className={styles.hero}>
-        <Hero />
+          <Hero />
+        </div>
+        <div className={styles.photo}>
+          <Photos />
+        </div>
+        <div className={styles.letter}>
+        </div>
+        <div className={styles.ending}>
+        </div>
       </div>
-      <div className={styles.photo}>
-        <Photos />
-      </div>
-      <div className={styles.letter}>
-      </div>
-      <div className={styles.ending}>
-      </div>
-    </div>
 
     </main >
   )

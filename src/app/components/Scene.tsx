@@ -1,23 +1,19 @@
 // src/app/components/Scene.tsx
-
 'use client'
-import React, { Suspense, useEffect, useRef } from 'react'
-import { Canvas, useFrame, useThree, } from '@react-three/fiber'
-import { AccumulativeShadows, Bvh, Environment, RandomizedLight } from '@react-three/drei'
+import React, { Suspense, useRef, useState, useEffect } from 'react'
+import { Canvas, useFrame, } from '@react-three/fiber'
+import { Bvh, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { BlendFunction, KernelSize, Resolution } from 'postprocessing'
-import { Bloom, EffectComposer, Noise, ChromaticAberration, BrightnessContrast, SMAA, Vignette, ToneMapping } from '@react-three/postprocessing'
-import { N8AO } from '@react-three/postprocessing'
-// import {}
+import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
+import { useLoadingStore } from '@/app/lib/store/loadingStore'
 
 gsap.registerPlugin(ScrollTrigger)
 
 type TimelineWithScroll = gsap.core.Timeline & { scrollTrigger?: ScrollTrigger | null }
-
 
 interface GLTFResult {
     nodes: {
@@ -45,9 +41,31 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
     const { nodes, materials } = useGLTF('/3d/flower.glb') as unknown as GLTFResult
     const modelGroupRef = useRef<THREE.Group>(null)
     const rotationGroupRef = useRef<THREE.Group>(null)
+    const activeLoadersCount = useLoadingStore(state => state.activeLoaders.size)
+
+    const [isLoaded, setIsLoaded] = useState(false)
+
     const targetRef = useRef<THREE.Object3D>(undefined)
     const initPos: [number, number, number] = [0, 7, 0];
-    const initRot: [number, number, number] = [Math.PI / 0.5, 0, 0];
+    const initRot: [number, number, number] = [Math.PI / 0.5, 0, 0]
+
+    // useEffect(() => {
+    //     if (activeLoadersCount > 0) {
+    //         setIsLoaded(false)
+    //         return
+    //     }
+
+    //     const timeoutId = setTimeout(() => {
+    //         if (useLoadingStore.getState().activeLoaders.size === 0) {
+    //             setIsLoaded(true)
+    //         }
+    //     }, 100)
+
+    //     console.log(activeLoadersCount)
+
+    //     return () => clearTimeout(timeoutId)
+    // }, [activeLoadersCount])
+
 
     useGSAP(() => {
         if (!trigger || !trigger.current) return;
@@ -76,7 +94,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             if (created) return;
             created = true;
 
-            const model = modelGroupRef.current!;
+            const model = modelGroupRef.current!
 
             tl = gsap.timeline({
             }) as TimelineWithScroll;
@@ -147,18 +165,12 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
             gl={{
                 antialias: false,
                 powerPreference: 'high-performance',
-                // toneMapping: THREE.ACESFilmicToneMapping,
-                // outputColorSpace: THREE.SRGBColorSpace,
-            }}
-        >
-
+            }}>
 
             <Suspense fallback={null}>
                 <Environment
                     files='/images/hdri/sunrise.jpg'
-                    // preset='lobby'
                     environmentIntensity={0.2} />
-                {/* <directionalLight intensity={6} /> */}
                 <pointLight
                     castShadow
                     color='white'
@@ -174,6 +186,7 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                     <group
                         ref={modelGroupRef}
                         position={initPos}
+                        scale={[0, 0, 0]}
                         rotation={initRot}>
                         <group
                             ref={rotationGroupRef}
@@ -196,26 +209,9 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                         </group>
                     </group>
                 </Bvh>
-                {/* <AccumulativeShadows color="orange" colorBlend={4} temporal frames={100} scale={25}>
-                    <RandomizedLight radius={6} position={[-5, 9, -5]} />
-                </AccumulativeShadows> */}
                 <EffectComposer>
                     <Bloom mipmapBlur intensity={1} luminanceThreshold={0.1} />
-                    <N8AO aoRadius={20} intensity={4} screenSpaceRadius />
-                    <Vignette offset={0.4} darkness={0.4} />
-                    <ToneMapping />
-                    {/* <N8AO
-                        quality="low"
-                        // screenSpaceRadius // 'low', 'medium', 'high', 'ultra'
-                        aoRadius={1} // The radius of the occlusion effect
-                        intensity={2} // How strong the effect is
-                        aoSamples={1}
-                        distanceFalloff={10} // How fast the effect fades with distance
-                    />
-                    <Bloom
-                        luminanceThreshold={0.4}
-                        luminanceSmoothing={0}
-                        intensity={20} /> */}
+                    <N8AO aoRadius={2} intensity={1} screenSpaceRadius />
                 </EffectComposer>
                 <RotatorUseFrame refGroup={rotationGroupRef} />
             </Suspense>

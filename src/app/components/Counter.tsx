@@ -5,6 +5,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger'
 import SplitText from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 import styles from './counter.module.css'
+import { useLoadingStore } from '@/app/lib/store/loadingStore'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
@@ -52,101 +53,113 @@ function buildOdometer(value: number) {
 
 /* ---------- REACT COMPONENT ---------- */
 
-export default function OptimizedCounter({ trigger }: { trigger: React.RefObject<HTMLElement | null> }) {
+export default function CounterSlot() {
    const days = useMemo(() => calculateDays(), []);
    const { reels, ticks } = useMemo(() => buildOdometer(days), [days]);
    const botText = useRef<HTMLDivElement>(null)
 
    const topText = useRef<HTMLDivElement>(null)
 
-   const container = useRef<HTMLDivElement>(null);
+   const container = useRef<HTMLDivElement>(null)
+   const odometer = useRef<HTMLDivElement | null>(null)
    const reelRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-   useGSAP(
-      () => {
-         if (!reelRefs.current) return;
+   useGSAP(() => {
+      if (!reelRefs.current) return;
 
-         reelRefs.current.forEach((reel, i) => {
-            if (!reel) return;
+      reelRefs.current.forEach((reel, i) => {
+         if (!reel) return;
 
-            const totalDigitsInReel = reels[i].length;
-            // The final resting position is determined by the total ticks for this wheel.
-            const totalTicks = ticks[i];
+         const totalDigitsInReel = reels[i].length;
+         // The final resting position is determined by the total ticks for this wheel.
+         const totalTicks = ticks[i];
 
-            // Calculate the exact yPercent to land on that tick index.
-            const finalYPercent = -(totalTicks / totalDigitsInReel) * 100
+         // Calculate the exact yPercent to land on that tick index.
+         const finalYPercent = -(totalTicks / totalDigitsInReel) * 100
 
-            const topChars = new SplitText(topText.current, { type: 'chars' })
-            const botChars = new SplitText(botText.current, { type: 'chars' })
+         const topChars = new SplitText(topText.current, { type: 'chars' })
+         const botChars = new SplitText(botText.current, { type: 'chars' })
 
-            gsap.set(topChars.chars, {
-               opacity: 0, y: '2px'
-            })
-            gsap.set(botChars.chars, {
-               opacity: 0, y: '2px'
-            })
-            gsap.set(reels, {
-               opacity: 0
-            })
+         gsap.set(topChars.chars, {
+            opacity: 0, y: '2px'
+         })
+         gsap.set(botChars.chars, {
+            opacity: 0, y: '2px'
+         })
+         gsap.set(odometer.current, {
+            opacity: 0
+         })
 
-            ScrollTrigger.create({
-               trigger: trigger.current,
-               start: 'top top',
-               markers: true,
-               end: 'bottom top',
-               onEnter: () => {
+         ScrollTrigger.create({
+            trigger: container.current,
+            start: 'top top',
+            markers: true,
+            end: 'bottom top',
+            onEnter: () => {
 
-                  const tl = gsap.timeline()
+               const tl = gsap.timeline()
 
-                  tl.to(topChars.chars, {
-                     opacity: 1,
-                     y: '0px',
-                     overwrite: true,
-                     stagger: {
-                        each: 0.06
-                     }
-                  }).to(reel, {
-                     opacity: 1,
-                     yPercent: finalYPercent,
-                     // All animations have the SAME duration.
-                     // This makes the wheels with more ticks (a larger yPercent change) spin faster.
-                     duration: 4,
-                     ease: 'power4.inOut',
-                  },'>').to(botChars.chars, {
-                     opacity: 1,
-                     y: '0px',
-                     overwrite: true,
-                     stagger: {
-                        each: 0.06
-                     }
-                  }, '>-1.5')
-               },
-               onLeaveBack: () => {
-                  gsap.to(topChars.chars, {
-                     opacity: 0,
-                     y: '2px',
-                     overwrite: true
-                  })
-                  gsap.to(botChars.chars, {
-                     opacity: 0,
-                     y: '2px',
-                     overwrite: true
-                  })
-               }
-            })
-         });
-      },
+               tl.to(topChars.chars, {
+                  opacity: 1,
+                  y: '0px',
+                  overwrite: true,
+                  stagger: {
+                     each: 0.06
+                  }
+               }).to(odometer.current, {
+                  opacity: 1,
+                  duration: 2,
+                  ease: 'power2.in'
+               }, '>').to(reel, {
+                  yPercent: finalYPercent,
+                  duration: 4,
+                  ease: 'power4.inOut',
+               }, '<').to(botChars.chars, {
+                  opacity: 1,
+                  y: '0px',
+                  overwrite: true,
+                  stagger: {
+                     each: 0.06
+                  }
+               }, '>-1.5')
+            },
+            onLeaveBack: () => {
+               gsap.to(topChars.chars, {
+                  opacity: 0,
+                  y: '2px',
+                  overwrite: true
+               })
+               gsap.to(botChars.chars, {
+                  opacity: 0,
+                  y: '2px',
+                  overwrite: true
+               })
+               gsap.to(reel, {
+                  yPercent: 0,
+                  duration: 2,
+                  ease: 'power4.inOut'
+               })
+               gsap.to(odometer.current, {
+                  opacity: 0,
+                  duration: 2,
+                  ease: 'power2.in'
+               })
+            }
+         })
+      });
+   },
       { scope: container, dependencies: [days] }
    );
 
    return (
       <div className={styles.container} ref={container}>
 
-         <p ref={topText}>It has been</p>
          <div className={styles.counter}>
-            <div className={styles.slotRow} aria-hidden="true">
+
+            <p ref={topText}>It has been</p>
+            <div className={styles.slotRow} aria-hidden="true" ref={odometer}>
                {reels.map((stack, i) => (
-                  <div key={i} className={styles.reelMask}>
+                  <div key={i} className={styles.reelMask} >
                      <div
                         className={styles.reel}
                         ref={(el) => (reelRefs.current[i] = el)}
