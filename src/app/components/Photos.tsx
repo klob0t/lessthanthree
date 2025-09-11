@@ -8,6 +8,7 @@ import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
+import { useTriggerStore } from '@/app/lib/store/triggerStore'
 import styles from './photo.module.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -35,14 +36,12 @@ export default function Photos() {
          photoPageRef.current.querySelectorAll("img") || []
       )
 
-      // 1. Store the ScrollTrigger instance in a variable
       ScrollTrigger.create({
          trigger: photoPageRef.current,
          start: 'top top',
          end: 'bottom top',
          pin: photoPageRef.current,
          pinSpacing: false,
-         // markers: true,
          invalidateOnRefresh: true,
 
          onEnter: () => gsap.to(imageArray, {
@@ -98,7 +97,7 @@ export default function Photos() {
 
    return (
       <div className={styles.photoPage} ref={photoPageRef}>
-         <CounterSlot trigger={photoPageRef} />
+         <CounterSlot />
          <div className={styles.pinWrapper} ref={pinRef}>
             <ResponsiveMasonry
                columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 9 }}>

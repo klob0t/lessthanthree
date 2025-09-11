@@ -7,19 +7,33 @@ import Photos from '@/app/components/Photos'
 import Hero from '@/app/components/Hero'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import { useEffect, useRef } from 'react'
+import { useTriggerStore } from '@/app/lib/store/triggerStore'
 
 const Scene = dynamic(() => import('@/app/components/Scene'), {
   ssr: false,
 })
 
 export default function Home() {
-  const { startLoading, finishLoading } = useLoadingStore()
-  const sceneRef = useRef<HTMLDivElement>(null)
+  const { finishLoading } = useLoadingStore()
+  const gridRef = useRef<HTMLDivElement>(null)
+  const setTrigger = useTriggerStore((s) => s.setTrigger)
 
   useEffect(() => {
     finishLoading('Initial Page Load')
   }, [finishLoading])
 
+  useEffect(() => {
+    if (!gridRef.current) return
+
+    const raf = requestAnimationFrame(() => {
+      setTrigger(gridRef.current)
+    })
+
+    return () => {
+      cancelAnimationFrame(raf)
+      setTrigger(null)
+    }
+  }, [setTrigger])
 
   return (
     <main className={styles.main}>
@@ -31,9 +45,9 @@ export default function Home() {
           zIndex: 2
         }}
       >
-        <Scene trigger={sceneRef} />
+        <Scene/>
       </div>
-      <div className={styles.grid} ref={sceneRef}>
+      <div className={styles.grid} ref={gridRef}>
         <div className={styles.hero}>
           <Hero />
         </div>

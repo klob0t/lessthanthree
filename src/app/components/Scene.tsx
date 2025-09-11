@@ -10,6 +10,7 @@ import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
+import { useTriggerStore } from '@/app/lib/store/triggerStore'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,122 +38,82 @@ export function RotatorUseFrame({ refGroup }: { refGroup: React.RefObject<THREE.
     return null
 }
 
-export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElement | null> }) {
+export default function Scene() {
     const { nodes, materials } = useGLTF('/3d/flower.glb') as unknown as GLTFResult
     const modelGroupRef = useRef<THREE.Group>(null)
     const rotationGroupRef = useRef<THREE.Group>(null)
     const targetRef = useRef<THREE.Object3D>(undefined)
+    const triggerEl = useTriggerStore((s) => s.triggerEl)
+    const container = useRef<HTMLDivElement>(null)
     const initRot: [number, number, number] = [Math.PI / 0.5, 0, 0];
     const isLoaded = useLoadingStore(state => state.activeLoaders.size === 0)
 
     useGSAP(() => {
-        if (!trigger || !isLoaded) return;
+        // This initial log is still useful for debugging
+        console.log('useGSAP effect running...', {
+            triggerEl: !!triggerEl,
+            isLoaded,
+            nodes: !!nodes,
+            modelRef: !!modelGroupRef.current // The key value we are watching
+        });
 
-        let rafId: number | null = null;
-        let tl: TimelineWithScroll | null = null;
-        let created = false;
+        // The dependency check now works perfectly
+        if (!triggerEl || !isLoaded || !nodes || !modelGroupRef.current) {
+            console.log('Aborting: Dependencies not ready.');
+            return;
+        }
 
+        const children = Array.from(triggerEl.children) as HTMLElement[];
+        const heroTrig = children[0] ?? null;
+        const photoTrig = children[1] ?? null;
 
-        const trySetup = () => {
-            if (!trigger || !trigger.current) return;
+        if (!heroTrig || !photoTrig) {
+            console.warn("GSAP triggers not found inside triggerEl. Final check failed.");
+            return;
+        }
 
-
-            const children = Array.from(trigger.current.children) as HTMLElement[]
-
-
-            const heroTrig = children[0] ?? null
-            const photoTrig = children[1] ?? null
-            const letterTrig = children[2] ?? null
-
-            if (!nodes || !modelGroupRef.current || !rotationGroupRef.current) {
-                rafId = requestAnimationFrame(trySetup);
-                return;
-            }
-
-            if (created) return;
-            created = true;
-
-            const model = modelGroupRef.current!;
-
-            gsap.set(model.scale, {
-                x: 0,
-                y: 0,
-                z: 0
-            })
-            gsap.set(model.position, {
-                x: 0,
-                y: 7,
-                z: 0
-            })
+        console.log('✅ All dependencies met! Setting up GSAP context.');
+        const ctx = gsap.context(() => {
+            const model = modelGroupRef.current;
+            gsap.set(model.position, { x: 0, y: 7, z: 0 });
+            gsap.set(model.scale, { x: 0, y: 0, z: 0 });
 
             gsap.to(model.scale, {
-                x: 1,
-                y: 1,
-                z: 1,
+                x: 1, y: 1, z: 1,
                 duration: 3,
-                ease: 'power3.inOut'
-            })
-
-            tl = gsap.timeline({
-            }) as TimelineWithScroll;
-
-
-            tl.to(model.position, {
-                x: 0,
-                y: 3,
-                z: 1.6,
                 overwrite: true,
-                ease: 'power1.inOut',
+                ease: 'power3.inOut'
+            });
+
+            gsap.to(model.position, {
                 scrollTrigger: {
+                    markers: true,
                     trigger: heroTrig,
                     scrub: true,
                     start: 'top top',
                     endTrigger: photoTrig,
                     end: 'center top'
                 },
-            }, 0).to(model.rotation, {
-                x: Math.PI / 0.7,
-                y: 0,
+                x: 0, y: 3, z: 1.6,
+                overwrite: true,
                 ease: 'power1.inOut',
-                scrollTrigger: {
-                    trigger: heroTrig,
-                    scrub: true,
-                    start: 'top top',
-                    endTrigger: photoTrig,
-                    end: 'center top',
-                }
-            }, 0).to(model.position, {
-                x: 1,
-                y: 3,
-                z: 1.6,
-                ease: 'power1.inOut',
-                scrollTrigger: {
-                    trigger: photoTrig,
-                    scrub: true,
-                    start: 'bottom top',
-                    endTrigger: letterTrig,
-                    end: 'bottom top'
-                },
-            })
+            });
 
-            ScrollTrigger.refresh();
-        };
+            setTimeout(() => {
+                ScrollTrigger.refresh();
+            }, 100);
 
-        rafId = requestAnimationFrame(trySetup);
+        });
 
         return () => {
-            if (rafId != null) cancelAnimationFrame(rafId);
-            if (tl) {
-                try {
-                    const st = tl.scrollTrigger;
-                    tl.kill();
-                    if (st) st.kill();
-                } catch (e) {
-                    console.error(e)
-                }
-            }
+            console.log('Cleaning up GSAP context.');
+            ctx.revert();
         }
-    }, { dependencies: [trigger, nodes, isLoaded], scope: trigger })
+
+    }, {
+        // ✅ THE FINAL FIX: Add modelGroupRef.current to the array.
+        dependencies: [triggerEl, isLoaded, nodes, triggerEl?.children.length, modelGroupRef.current]
+    });
 
 
     return (
@@ -214,10 +175,10 @@ export default function Scene({ trigger }: { trigger: React.RefObject<HTMLElemen
                         </group>
                     </group>
                 </Bvh>
-                <EffectComposer>
+                {/* <EffectComposer>
                     <Bloom mipmapBlur intensity={1} luminanceThreshold={0.1} />
                     <N8AO aoRadius={2} intensity={1} screenSpaceRadius />
-                </EffectComposer>
+                </EffectComposer> */}
                 <RotatorUseFrame refGroup={rotationGroupRef} />
             </Suspense>
         </Canvas>
