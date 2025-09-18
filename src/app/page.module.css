@@ -10,15 +10,30 @@
   background-color: var(--background);
 }
 
-.flower {
-  width: 100%;
-  position: relative;
-  height: 100%;
-}
-
-
 .photo {
   height: 100%;
   position: relative;
-  height: 100%;
+  height: 100dvh;
+  /* background-color: pink; */
+}
+
+.hero {
+  /* background-color: red; */
+  height: 100dvh;
+}
+
+.letter {
+  /* background-color: blue; */
+  height: 100dvh;
+  /* overflow: scroll; */
+}
+
+.spacer {
+  /* background-color: green; */
+
+  height: 100dvh;
+}
+
+.ending {
+  height: 100dvh;
 }

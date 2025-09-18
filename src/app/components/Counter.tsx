@@ -63,133 +63,115 @@ export default function CounterSlot() {
    const triggerEl = useTriggerStore((s) => s.triggerEl)
    const reelRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-useGSAP(() => {
-  // require triggerEl to exist and at least the expected children
-  if (!triggerEl) return
+   useGSAP(() => {
+      // require triggerEl to exist and at least the expected children
+      if (!triggerEl) return
 
-  let rafId: number | null = null
-  let created = false
-  const splits: Array<{ instance: any, target: HTMLElement | null}> = []
-  const createdTriggers: gsap.core.ScrollTrigger[] = []
+      let rafId: number | null = null
+      let created = false
+      const splits: Array<{ instance: any, target: HTMLElement | null }> = []
+      const createdTriggers: gsap.core.ScrollTrigger[] = []
 
-  const trySetup = () => {
-    if (!triggerEl) return
+      const trySetup = () => {
+         if (!triggerEl) return
 
-    // ensure the grid has the child sections we expect (hero, photos, letter)
-    const children = Array.from(triggerEl.children) as HTMLElement[]
-    const heroTrig = children[0] ?? null
-    const photoTrig = children[1] ?? null
-    const letterTrig = children[2] ?? null
+         // ensure the grid has the child sections we expect (hero, photos, letter)
+         const children = Array.from(triggerEl.children) as HTMLElement[]
+         const heroTrig = children[0] ?? null
+         const photoTrig = children[1] ?? null
+         const letterTrig = children[2] ?? null
 
-    // not ready yet — wait a frame
-    if (!photoTrig || !odometer.current || !reelRefs.current.length) {
+         // not ready yet — wait a frame
+         if (!photoTrig || !odometer.current || !reelRefs.current.length) {
+            rafId = requestAnimationFrame(trySetup)
+            return
+         }
+
+         if (created) return
+         created = true
+
+         // Prepare SplitText once (store instances to revert on cleanup)
+         const topChars = new SplitText(topText.current!, { type: 'chars' })
+         splits.push({ instance: topChars, target: topText.current })
+         const botChars = new SplitText(botText.current!, { type: 'chars' })
+         splits.push({ instance: botChars, target: botText.current })
+
+         gsap.set(topChars.chars, { opacity: 0 })
+         gsap.set(botChars.chars, { opacity: 0 })
+         gsap.set(odometer.current, { opacity: 0 })
+
+         // measure digit height (use first available reel/digit)
+         const sampleReel = reelRefs.current.find(Boolean) as HTMLElement | undefined
+         const digitEl = sampleReel?.querySelector<HTMLDivElement>('.digit')
+         const digitHeight = Math.round(digitEl?.offsetHeight || 0)
+
+         // Build a single timeline that animates all reels sequentially or in parallel
+         const tl = gsap.timeline({
+            scrollTrigger: {
+               trigger: photoTrig,
+               start: 'top top',
+               // markers: true,
+               end: 'bottom top',
+               toggleActions: 'play reverse play reverse'
+            }
+         })
+
+         // topChars reveal
+         tl.to(topChars.chars, {
+            opacity: 1,
+            y: '0px',
+            overwrite: true,
+            stagger: { each: 0.06 }
+         }).to(odometer.current, {
+            opacity: 1,
+            duration: 2,
+            ease: 'power2.in'
+         }, '>')
+         // odometer reveal + reel animations are triggered by ScrollTrigger on photoTrig
+         // create a ScrollTrigger that plays tl2 when photoTrig enters
+         // animate each reel on tl2 (stagger or sequence as you like)
+         reelRefs.current.forEach((reel, i) => {
+            if (!reel) return
+            const totalTicks = ticks[i] || 0
+            const endY = -totalTicks * digitHeight
+            // small offset so reels feel like odometer (rightmost moves more / later)
+            const offset = i * 0.08
+            tl.to(reel, {
+               ease: 'power4.inOut',
+               y: endY,
+               duration: 3 + i * 0.2, // tune durations
+               onStart: () => reel.classList.add('animating'),
+               onComplete: () => reel.classList.remove('animating')
+            }, offset).to(botChars.chars, {
+               opacity: 1,
+               y: '0px',
+               overwrite: true,
+               stagger: { each: 0.06 }
+            }, '>-0.5')
+         })
+
+
+      } // end trySetup
+
       rafId = requestAnimationFrame(trySetup)
-      return
-    }
 
-    if (created) return
-    created = true
-
-    // Prepare SplitText once (store instances to revert on cleanup)
-    const topChars = new SplitText(topText.current!, { type: 'chars' })
-    splits.push({ instance: topChars, target: topText.current })
-    const botChars = new SplitText(botText.current!, { type: 'chars' })
-    splits.push({ instance: botChars, target: botText.current })
-
-    gsap.set(topChars.chars, { opacity: 0 })
-    gsap.set(botChars.chars, { opacity: 0 })
-    gsap.set(odometer.current, { opacity: 0 })
-
-    // measure digit height (use first available reel/digit)
-    const sampleReel = reelRefs.current.find(Boolean) as HTMLElement | undefined
-    const digitEl = sampleReel?.querySelector<HTMLDivElement>('.digit')
-    const digitHeight = Math.round(digitEl?.offsetHeight || 0)
-
-    // Build a single timeline that animates all reels sequentially or in parallel
-    const tl = gsap.timeline()
-
-    // topChars reveal
-    tl.to(topChars.chars, {
-      opacity: 1,
-      y: '0px',
-      overwrite: true,
-      stagger: { each: 0.06 }
-    })
-
-    // odometer reveal + reel animations are triggered by ScrollTrigger on photoTrig
-    // create a ScrollTrigger that plays tl2 when photoTrig enters
-    const tl2 = gsap.timeline({
-      paused: true,
-      defaults: { ease: 'power4.inOut' }
-    })
-
-    // animate odometer container
-    tl2.to(odometer.current, { opacity: 1, duration: 2, ease: 'power2.in' }, 0)
-
-    // animate each reel on tl2 (stagger or sequence as you like)
-    reelRefs.current.forEach((reel, i) => {
-      if (!reel) return
-      const totalTicks = ticks[i] || 0
-      const endY = -totalTicks * digitHeight
-      // small offset so reels feel like odometer (rightmost moves more / later)
-      const offset = i * 0.08
-      tl2.to(reel, {
-        y: endY,
-        duration: 3 + i * 0.2, // tune durations
-        onStart: () => reel.classList.add('animating'),
-        onComplete: () => reel.classList.remove('animating')
-      }, offset)
-    })
-
-    // reveal bottom text after reels animation
-    tl2.to(botChars.chars, {
-      opacity: 1,
-      y: '0px',
-      overwrite: true,
-      stagger: { each: 0.06 }
-    }, '>-0.5')
-
-    // create a ScrollTrigger that controls tl2 (scrub or play/pin depending on UX)
-    const st = ScrollTrigger.create({
-      trigger: photoTrig,
-      start: 'top top',
-      end: 'bottom top',
-      // use scrub:true if you want timeline tied to scroll position
-      // or leave scrub:false and use onEnter to play the TL
-      onEnter: () => tl2.play(),
-      onLeaveBack: () => {
-        tl2.pause(0)
-        // reset UI
-        gsap.set(reelRefs.current, { y: 0 })
-        gsap.set(odometer.current, { opacity: 0 })
-        gsap.set([topChars.chars, botChars.chars], { opacity: 0 })
+      return () => {
+         // cleanup RAF
+         if (rafId != null) cancelAnimationFrame(rafId)
+         // kill created ScrollTriggers
+         createdTriggers.forEach((t) => {
+            try { t.kill() } catch (e) { }
+         })
+         // revert SplitText instances
+         splits.forEach(s => {
+            try { s.instance.revert() } catch (e) { }
+         })
+         // remove animating classes
+         reelRefs.current.forEach((r) => r && r.classList.remove('animating'))
+         // kill all ScrollTrigger instances for safety (optional)
+         // ScrollTrigger.getAll().forEach(t => t.kill())
       }
-    })
-    createdTriggers.push(st)
-
-    // optionally add tl (top reveal) to play before scroll-triggered tl2:
-    tl.play()
-  } // end trySetup
-
-  rafId = requestAnimationFrame(trySetup)
-
-  return () => {
-    // cleanup RAF
-    if (rafId != null) cancelAnimationFrame(rafId)
-    // kill created ScrollTriggers
-    createdTriggers.forEach((t) => {
-      try { t.kill() } catch (e) {}
-    })
-    // revert SplitText instances
-    splits.forEach(s => {
-      try { s.instance.revert() } catch (e) {}
-    })
-    // remove animating classes
-    reelRefs.current.forEach((r) => r && r.classList.remove('animating'))
-    // kill all ScrollTrigger instances for safety (optional)
-    // ScrollTrigger.getAll().forEach(t => t.kill())
-  }
-}, { scope: container, dependencies: [days, triggerEl] /* include triggerEl */ })
+   }, { scope: container, dependencies: [days, triggerEl] /* include triggerEl */ })
 
 
    return (

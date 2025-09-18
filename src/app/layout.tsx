@@ -22,7 +22,7 @@ const serif = localFont({
 
 
 export const metadata: Metadata = {
-  title: "hello",
+  title: "Dear, Muthia",
   description: "hi",
 };
 

@@ -24,24 +24,32 @@ export default function Photos() {
    const [isClient, setIsClient] = useState(false)
    const photoPageRef = useRef<HTMLDivElement>(null)
    const pinRef = useRef<HTMLDivElement>(null)
+   const triggerEl = useTriggerStore((s) => s.triggerEl)
+
 
    useEffect(() => {
       setIsClient(true)
    }, [])
 
    useGSAP(() => {
-      if (!photoPageRef.current || images.length === 0) return
+      if (!photoPageRef.current || images.length === 0 || !triggerEl) return
 
       const imageArray = gsap.utils.toArray<HTMLImageElement>(
          photoPageRef.current.querySelectorAll("img") || []
       )
 
+      const children = Array.from(triggerEl.children) as HTMLElement[]
+      const heroTrig = children[0] ?? null
+      const photoTrig = children[1] ?? null
+
       ScrollTrigger.create({
-         trigger: photoPageRef.current,
-         start: 'top top',
+         trigger: heroTrig,
+         start: 'bottom top',
          end: 'bottom top',
-         pin: photoPageRef.current,
-         pinSpacing: false,
+         endTrigger: photoTrig,
+         // pin: photoPageRef.current,
+         // pinSpacing: false,
+         // markers: true,
          invalidateOnRefresh: true,
 
          onEnter: () => gsap.to(imageArray, {

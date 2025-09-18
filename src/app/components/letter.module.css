@@ -1,0 +1,19 @@
+.letterPage {
+   font-family: var(--serif);
+   padding: 6rem
+}
+
+.letterPage h3 {
+   font-size: 1rem;
+   margin: 0 0 1rem 0;
+}
+
+.letterPage p {
+   font-size: 1rem;
+   margin: 1rem 0 0 0;
+   line-height: 1.6rem;
+}
+
+.letterPage em {
+   font-style: normal;
+}

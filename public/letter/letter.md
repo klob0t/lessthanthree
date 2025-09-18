@@ -1,0 +1,13 @@
+### Dear, Muthia
+
+First of all, I want to apologize for this late late anniversary gift. Turns out making something like this was waaay harder than I expected. But hey, if love was easy, it wouldn’t be this fun, right? I really tried my best because I wanted it to feel special, and I hope when you see it, you’ll smile and maybe forgive me for being late, hehe.
+
+Second, and the most important thing—Happy third anniversary, Sayang.
+
+Did you notice the number of days we’ve been together up there? {days}. It still surprises me every time I look at it. I never realized it’s been _that_ long because with you, time doesn’t drag—it flies. These three years have been packed with so many moments: eating together (sometimes too much), wandering around new places, sharing secrets, and yes… a couple of arguments here and there (sometimes too passionately, haha). But all of it is part of us, and I wouldn’t trade a single day. If I could choose all over again, I’d still choose you—every time. These really have been the best three years of my life, and it’s all because of you.
+
+This little page I made is kind of like our time capsule. Something alive that grows day by day, just like us. Our memories are stitched together here, piece by piece, like the photos we’ve taken—messy, beautiful, real. Even the flower you see blooming is a little echo of us, never wither. I wanted our memories to sit side by side, like pieces of a bigger story, and for each day to be counted, so that none of it slips away unnoticed. Someday, maybe 20 years from now, we’ll open this again with our kids on our laps, and they’ll laugh at how cool, romantic, (and cheesy) their parents were. Hopefully the server will still be alive, unless a nuclear war breaks between the USA and Indonesia, hahahaha.
+
+When I look back, I feel like our first year was about falling in love, our second was about learning love, and our third has been about _understanding_ love. We’ve seen each other in so many moods and phases, yet here we are still choosing each other, still growing. I know I’m not perfect, but I promise I’ll keep trying to understand you better, to love you deeper, and to make you feel cherished in ways words will never be enough to describe.
+
+Thank you for being my safe place, my partner, and my best friend. Thank you for the patience, the laughter, and the love that makes life feel so light even when it’s hard. I don’t know what the future holds, but I know I want to face it all with you by my side.

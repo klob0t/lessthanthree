@@ -11,7 +11,7 @@ html {
 
   padding: 0;
   margin: 0;
-  scrollbar-color: var(--background) var(--background);
+  /* scrollbar-color: var(--background) var(--background); */
   scrollbar-width: 0px;
 }
 
