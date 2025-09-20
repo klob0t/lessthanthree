@@ -30,6 +30,18 @@
    justify-content: center;
 }
 
+.letterPage [data-split="chars"]>*
+
+/* or target the char elements directly */
+   {
+   display: inline-block;
+   /* allow transform without layout shift */
+   backface-visibility: hidden;
+   transform: translateZ(0);
+   will-change: transform, opacity;
+   /* reduce paint cost: avoid text-shadow and heavy filters here */
+}
+
 
 .reelMask {
    width: 2.6rem;
@@ -41,6 +53,8 @@
 
 .reel {
    opacity: 1;
+   transform: translateZ(0);
+   will-change: transform;
 }
 
 .reel.animating {
@@ -58,5 +72,10 @@
    align-items: center;
    font-weight: 100;
    color: var(--text);
-   font-family: Arial, Helvetica, sans-serif
+   font-family: var(--serif);
+   font-variant-numeric: tabular-nums;
+   font-feature-settings: "tnum";
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+   will-change: transform, opacity;
 }

@@ -5,7 +5,7 @@ import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { SplitText } from 'gsap/SplitText'
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 
 gsap.registerPlugin(SplitText)
 

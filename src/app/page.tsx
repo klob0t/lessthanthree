@@ -51,7 +51,7 @@ export default function Home() {
     const children = Array.from(triggerEl?.children)
 
     ScrollTrigger.create({
-      markers: true,
+      // markers: true,
       trigger: children[1],
       start: 'top top',
       endTrigger: children[1],
@@ -63,7 +63,7 @@ export default function Home() {
     })
 
     ScrollTrigger.create({
-      markers: true,
+      // markers: true,
       trigger: children[3],
       start: 'top top',
       endTrigger: children[3],

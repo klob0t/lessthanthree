@@ -1,0 +1,24 @@
+.endingPage {
+   height: 100%;
+   max-width: 80%;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   padding: 10rem;
+   justify-self: center;
+   flex-direction: column;
+   /* outline: 1px solid red */
+}
+
+.endingPage > div:nth-child(2) {
+   align-self: flex-start;
+}
+
+.endingPage h1 {
+   font-family: var(--serif);
+   font-weight: 100;
+   
+  white-space: normal;        /* allow wrapping, but only at spaces */
+  word-break: keep-all;       /* do not break within words */
+  overflow-wrap: normal;  
+}

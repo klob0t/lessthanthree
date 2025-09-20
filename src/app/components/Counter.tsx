@@ -7,7 +7,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger'
 import SplitText from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 import styles from './counter.module.css'
-import { useLoadingStore } from '@/app/lib/store/loadingStore'
+// import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import { useTriggerStore } from '../lib/store/triggerStore'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
@@ -16,7 +16,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
 
 
 
-function calculateDays(): number {
+export function calculateDays(): number {
    const today = new Date();
    const startDate = new Date('2022-08-27');
    const timeDiff = today.getTime() - startDate.getTime();
@@ -69,17 +69,17 @@ export default function CounterSlot() {
 
       let rafId: number | null = null
       let created = false
-      const splits: Array<{ instance: any, target: HTMLElement | null }> = []
-      const createdTriggers: gsap.core.ScrollTrigger[] = []
+      const splits: Array<{ instance: InstanceType<typeof SplitText>, target: HTMLElement | null }> = []
+      const createdTriggers: Array<ReturnType<typeof ScrollTrigger.create>> = []
 
       const trySetup = () => {
          if (!triggerEl) return
 
          // ensure the grid has the child sections we expect (hero, photos, letter)
          const children = Array.from(triggerEl.children) as HTMLElement[]
-         const heroTrig = children[0] ?? null
+         // const heroTrig = children[0] ?? null
          const photoTrig = children[1] ?? null
-         const letterTrig = children[2] ?? null
+         // const letterTrig = children[2] ?? null
 
          // not ready yet — wait a frame
          if (!photoTrig || !odometer.current || !reelRefs.current.length) {
@@ -160,11 +160,11 @@ export default function CounterSlot() {
          if (rafId != null) cancelAnimationFrame(rafId)
          // kill created ScrollTriggers
          createdTriggers.forEach((t) => {
-            try { t.kill() } catch (e) { }
+            try { t.kill() } catch (e) { console.error(e) }
          })
          // revert SplitText instances
          splits.forEach(s => {
-            try { s.instance.revert() } catch (e) { }
+            try { s.instance.revert() } catch (e) { console.error(e) }
          })
          // remove animating classes
          reelRefs.current.forEach((r) => r && r.classList.remove('animating'))
@@ -183,7 +183,7 @@ export default function CounterSlot() {
                   <div key={i} className={styles.reelMask} >
                      <div
                         className={styles.reel}
-                        ref={(el) => (reelRefs.current[i] = el)}
+                        ref={(el) => { reelRefs.current[i] = el }}
                      >
                         {stack.map((n: number, k: number) => (
                            <div className={`digit ${styles.digit}`} key={k}>
