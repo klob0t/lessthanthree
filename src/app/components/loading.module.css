@@ -1,0 +1,27 @@
+﻿.content {
+  font-size: 1rem;
+
+}
+
+.content p {
+  font-size: 4rem;
+  
+  font-family: var(--text);
+}
+
+.overlay {
+  display: flex;
+  width: 100vw;
+  height: 100dvh;
+  flex-grow: 1;
+
+  align-items: center;
+  justify-content: center;
+  border: 1px solid pink;
+}
+
+
+@media screen and (max-width: 768px) {
+  /* TODO: mobile styles */
+}
+

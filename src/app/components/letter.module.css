@@ -1,19 +1,55 @@
-.letterPage {
+﻿.letterWrapper {
    font-family: var(--serif);
-   padding: 4rem 2rem 0 3rem;
+
+   max-width: 1024px;
+   width: 100%;
+}
+
+.letterPage {
+   width: 100%;
+   display: flex;
+
+   padding: 1rem 2rem 0 1rem;
+   display: flex;
+   width: 100dvw;
+   align-items: center;
+   margin: auto;
+   /* border: 1px solid red; */
+   justify-content: center;
 }
 
 .letterPage h3 {
-   font-size: 1.15rem;
-   margin: 0 0 1rem 0;
+   font-size: 8rem;
+   line-height: 8rem;
+   margin: 0 0 0 0;
+
+   font-family: var(--cursive);
 }
 
 .letterPage p {
    font-size: 1.15rem;
-   margin: 1rem 0 0 0;
+   margin: 0rem 0 1rem 0;
    line-height: 1.6rem;
+   font-family: var(--serif);
 }
 
 .letterPage em {
    font-style: italic;
+}
+
+
+@media screen and (max-width: 768px) {
+
+   .letterPage h3 {
+      font-size: 3rem;
+      line-height: 3rem;
+   }
+
+   .letterPage p {
+      font-size: 0.8rem;
+
+      margin: 0rem 0 0.4rem 0;
+      line-height: 1rem;
+   }
+
 }

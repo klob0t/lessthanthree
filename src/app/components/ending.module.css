@@ -4,21 +4,28 @@
    display: flex;
    justify-content: center;
    align-items: center;
-   padding: 10rem;
+   padding: 2rem;
+   font-size: 2rem;
    justify-self: center;
    flex-direction: column;
    /* outline: 1px solid red */
 }
 
-.endingPage > div:nth-child(2) {
+.endingPage>div:nth-child(2) {
    align-self: flex-start;
 }
 
-.endingPage h1 {
+.endingPage p {
    font-family: var(--serif);
    font-weight: 100;
-   
-  white-space: normal;        /* allow wrapping, but only at spaces */
-  word-break: keep-all;       /* do not break within words */
-  overflow-wrap: normal;  
+
+   white-space: normal;
+   /* allow wrapping, but only at spaces */
+   word-break: keep-all;
+   /* do not break within words */
+   overflow-wrap: normal;
 }
+@media screen and (max-width: 768px) {
+  /* TODO: mobile styles */
+}
+

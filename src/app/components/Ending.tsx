@@ -1,4 +1,4 @@
-import { useGSAP } from '@gsap/react'
+﻿import { useGSAP } from '@gsap/react'
 import { useTriggerStore } from '@/app/lib/store/triggerStore'
 import styles from './ending.module.css'
 import { useRef } from 'react'
@@ -12,49 +12,65 @@ export default function Ending() {
    const triggerEl = useTriggerStore((s) => s.triggerEl)
    const endingPageRef = useRef<HTMLDivElement | null>(null)
 
-
    useGSAP(
       () => {
          if (!triggerEl || !endingPageRef.current) return
 
-         const children = Array.from(triggerEl.children) as HTMLElement[]
-         const letterTrig = children[3] ?? null
-         if (!letterTrig) return
+         const splitTargets = gsap.utils.toArray<HTMLSpanElement>(
+            endingPageRef.current.querySelectorAll('span')
+         )
 
-         const texts = new SplitText(endingPageRef.current!.querySelectorAll('h1'), { type: 'chars' })
+         if (splitTargets.length === 0) return
 
-         gsap.from(texts.chars, {
-            autoAlpha: 0,
-            y: 0,
-            stagger: { each: 0.1, from: 'start' },
-            duration: 0.01,
-            ease: 'power3.out',
+         const splitInstances = splitTargets.map((span) =>
+            new SplitText(span, { type: 'words,chars' })
+         )
+
+         const timeline = gsap.timeline({
+            defaults: { duration: 0.02, ease: 'power3.out' },
             scrollTrigger: {
                trigger: endingPageRef.current,
                start: 'top center',
                end: 'bottom top',
-               markers: false,
+               toggleActions: 'play none none reverse',
             }
          })
 
+         splitInstances.forEach((split, index) => {
+            timeline.from(
+               split.chars,
+               {
+                  autoAlpha: 0,
+                  delay: 0.3,
+                  stagger: { each: 0.06, from: 'start' }
+               },
+               index === 0 ? 0 : '>'
+            )
+         })
+
+         return () => {
+            timeline.scrollTrigger?.kill()
+            timeline.kill()
+            splitInstances.forEach((instance) => instance.revert())
+         }
+
       },
-      { dependencies: [triggerEl, endingPageRef.current], scope: endingPageRef } 
+      { dependencies: [triggerEl, endingPageRef.current], scope: endingPageRef }
    )
 
    return (
       <div className={styles.endingPage} ref={endingPageRef}>
-         <div>
-            <h1>
-               Year after year, I want to keep saying happy anniversary, to you, and <u>only you</u>.
-               <br />
-            </h1>
-         </div>
-         <div>
-            <h1>
-               Yours forever,
-               <br />
-               Airlangga
-            </h1>
+         <div className={styles.endingWrapper}>
+            <p>
+               <span>Year after year,&nbsp;</span>
+               <span>I want to keep saying happy anniversary&nbsp;</span>
+               <span>to you,&nbsp;</span>
+               <span>and only you.</span>
+            </p>
+            <p>
+               <span>Yours forever,&nbsp;</span>
+               <span><br />Airlangga</span>
+            </p>
          </div>
       </div>
    )

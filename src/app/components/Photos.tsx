@@ -42,6 +42,10 @@ export default function Photos() {
       const heroTrig = children[0] ?? null
       const photoTrig = children[1] ?? null
 
+      gsap.set(imageArray, {
+         scale: 0,
+      })
+
       ScrollTrigger.create({
          trigger: heroTrig,
          start: 'bottom top',
@@ -55,14 +59,34 @@ export default function Photos() {
          onEnter: () => gsap.to(imageArray, {
             autoAlpha: 0.3,
             overwrite: true,
+            scale: 1,
             stagger: {
                each: 0.05,
+               from: 'random'
+            }
+         }),
+         onEnterBack: () => gsap.to(imageArray, {
+            autoAlpha: 0.3,
+            overwrite: true,
+            scale: 1,
+            stagger: {
+               each: 0.05,
+               from: 'random'
+            }
+         }),
+         onLeave: () => gsap.to(imageArray, {
+            autoAlpha: 0,
+            overwrite: true,
+            scale: 0,
+            stagger: {
+               each: 0.006,
                from: 'random'
             }
          }),
          onLeaveBack: () => gsap.to(imageArray, {
             autoAlpha: 0,
             overwrite: true,
+            scale: 0,
             stagger: {
                each: 0.006,
                from: 'random'
@@ -108,7 +132,7 @@ export default function Photos() {
          <CounterSlot />
          <div className={styles.pinWrapper} ref={pinRef}>
             <ResponsiveMasonry
-               columnsCountBreakPoints={{ 350: 3, 750: 6, 900: 9 }}>
+               columnsCountBreakPoints={{ 350: 6, 750: 9, 900: 9 }}>
                <Masonry gutter='1rem'>
                   {images.map((image) => (
                      <TrackedImage

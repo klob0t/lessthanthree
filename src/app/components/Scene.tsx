@@ -1,8 +1,8 @@
-// src/app/components/Scene.tsx
+﻿// src/app/components/Scene.tsx
 'use client'
 import React, { Suspense, useRef, useState, useCallback, useEffect } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { Bvh, Environment, useGLTF } from '@react-three/drei'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Bvh, Environment, useGLTF, useProgress } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
@@ -31,13 +31,14 @@ interface GLTFResult {
  * Must be monotonic, start at 0 and end at 1.
  */
 const STOPS = [0, 0.35, 0.7, 0.83] as const
+const SCENE_LOADER_ID = 'Scene Assets' as const
 
 /* ---------- helper: find segment & localT using STOPS ---------- */
 function findSegmentAndLocalT(t: number, stops: readonly number[]) {
     const EPS = 1e-6
     const clamped = THREE.MathUtils.clamp(t, stops[0], stops[stops.length - 1])
 
-    // If t is at or very close to final stop — return last segment, localT = 1
+    // If t is at or very close to final stop â€” return last segment, localT = 1
     if (clamped >= stops[stops.length - 1] - EPS) {
         const lastIndex = stops.length - 2
         return { index: lastIndex, localT: 1 }
@@ -161,7 +162,8 @@ function RotationFollower({
 
         if (smooth) {
             const alpha = Math.min(1, delta * smoothSpeed)
-            currentQ.current.slerp(targetQ.current, alpha)
+            currentQ.
+                current.slerp(targetQ.current, alpha)
             model.quaternion.copy(currentQ.current)
         } else {
             model.quaternion.copy(targetQ.current)
@@ -181,82 +183,28 @@ export function RotatorUseFrame({ refGroup }: { refGroup: React.RefObject<THREE.
     return null
 }
 
-/* ---------- DebugOverlay (DOM) ---------- */
-// function DebugOverlay({
-//     proxyRef,
-//     stops,
-//     showMarkers,
-//     setShowMarkers,
-//     rebuild
-// }: {
-//     proxyRef: React.RefObject<{ t: number }>
-//     stops: readonly number[]
-//     showMarkers: boolean
-//     setShowMarkers: (v: boolean) => void
-//     rebuild: () => void
-// }) {
-//     const [vals, setVals] = useState({ t: 0, index: 0, localT: 0 })
-//     const rafRef = useRef<number | null>(null)
 
-//     useEffect(() => {
-//         let mounted = true
-//         function tick() {
-//             if (!mounted) return
-//             const t = proxyRef.current?.t ?? 0
-//             const { index, localT } = findSegmentAndLocalT(t, stops)
-//             setVals({ t, index, localT })
-//             rafRef.current = requestAnimationFrame(tick)
-//         }
-//         rafRef.current = requestAnimationFrame(tick)
-//         return () => {
-//             mounted = false
-//             if (rafRef.current) cancelAnimationFrame(rafRef.current)
-//         }
-//     }, [proxyRef, stops])
-
-//     return (
-//         <div style={{
-//             position: 'fixed',
-//             right: 12,
-//             top: 12,
-//             zIndex: 9999,
-//             background: 'rgba(0,0,0,0.6)',
-//             color: 'white',
-//             fontFamily: 'monospace',
-//             padding: '10px',
-//             borderRadius: 8,
-//             minWidth: 220,
-//             fontSize: 12,
-//             pointerEvents: 'auto'
-//         }}>
-//             <div style={{ marginBottom: 6, fontWeight: 700 }}>Scene Debug</div>
-//             <div>t: {vals.t.toFixed(4)}</div>
-//             <div>segment: {vals.index} / {stops.length - 2}</div>
-//             <div>localT: {vals.localT.toFixed(4)}</div>
-//             <hr style={{ border: 'none', height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
-//             <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-//                 <input type="checkbox" checked={showMarkers} onChange={(e) => setShowMarkers(e.target.checked)} />
-//                 show ScrollTrigger markers
-//             </label>
-//             <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-//                 <button onClick={rebuild} style={{ flex: 1, padding: '6px 8px' }}>Rebuild timeline</button>
-//             </div>
-//             <div style={{ marginTop: 8, fontSize: 11, opacity: 0.85 }}>
-//                 STOPS: {stops.join(', ')}
-//             </div>
-//         </div>
-//     )
-// }
 
 /* ---------- Main Scene ---------- */
 export default function Scene() {
     const { nodes, materials } = useGLTF('/3d/flower.glb') as unknown as GLTFResult
+    const { active } = useProgress()
 
     const modelGroupRef = useRef<THREE.Group | null>(null)
     const rotationGroupRef = useRef<THREE.Group | null>(null)
     const targetRef = useRef<THREE.Object3D | null>(null)
     const spotLightRef = useRef<THREE.SpotLight | null>(null)
     const proxyRef = useRef({ t: 0 }) // exposed so debug overlay can read it
+    const sceneLoaderRef = useRef(false)
+
+    // const viewport = useThree((state) => state.viewport)
+    const scalingFactor = Math.min(Math.max(window.innerWidth / 1280, 0.7), 1)
+
+    const isMobile = window.innerWidth < 768
+
+
+
+    console.log(scalingFactor)
 
     const [modelReady, setModelReady] = useState(false)
     // const [showMarkers, setShowMarkers] = useState(false)
@@ -264,6 +212,9 @@ export default function Scene() {
 
     const triggerEl = useTriggerStore((s) => s.triggerEl)
     const isLoaded = useLoadingStore(state => state.activeLoaders.size === 0)
+    const startLoading = useLoadingStore((state) => state.startLoading)
+    const finishLoading = useLoadingStore((state) => state.finishLoading)
+    const shouldHoldScene = active || !modelReady
 
     const setModelRef = useCallback((el: THREE.Group | null) => {
         modelGroupRef.current = el
@@ -287,6 +238,25 @@ export default function Scene() {
     }, [])
 
     useEffect(() => {
+        if (shouldHoldScene && !sceneLoaderRef.current) {
+            sceneLoaderRef.current = true
+            startLoading(SCENE_LOADER_ID)
+        } else if (!shouldHoldScene && sceneLoaderRef.current) {
+            sceneLoaderRef.current = false
+            finishLoading(SCENE_LOADER_ID)
+        }
+    }, [shouldHoldScene, startLoading, finishLoading])
+
+    useEffect(() => {
+        return () => {
+            if (sceneLoaderRef.current) {
+                sceneLoaderRef.current = false
+                finishLoading(SCENE_LOADER_ID)
+            }
+        }
+    }, [finishLoading])
+
+    useEffect(() => {
         if (!modelReady) return
         const t = window.setTimeout(() => ScrollTrigger.refresh(), 120)
         return () => clearTimeout(t)
@@ -299,116 +269,13 @@ export default function Scene() {
     useEffect(() => {
         // define exact world positions for each stop (4 positions -> works with STOPS length 4)
         positionsRef.current = [
-            new THREE.Vector3(0.1, 6, 0),   // stop 0
+            isMobile ? new THREE.Vector3(-0.1, 6, 0.1) : new THREE.Vector3(0.1, 6, 0),   // stop 0
             new THREE.Vector3(0, 0, 3),   // stop 1
             new THREE.Vector3(1, -2, 4), // stop 2
             new THREE.Vector3(0, 1, 2)  // stop 3
         ]
     }, [])
 
-    /* ---------- GSAP: SNAP-per-section (replace the scrubbed useGSAP block) ---------- */
-    // useGSAP(() => {
-    //     if (!triggerEl || !isLoaded || !nodes || !modelGroupRef.current || !rotationGroupRef.current || !positionsRef.current || !modelReady) {
-    //         return
-    //     }
-
-    //     const children = Array.from(triggerEl.children) as HTMLElement[]
-    //     const heroTrig = children[0] ?? null
-    //     const photoTrig = children[1] ?? null
-    //     const letterTrig = children[2] ?? null
-    //     const endTrig = children[4] ?? null
-
-    //     console.log(children, heroTrig, photoTrig, letterTrig, endTrig)
-
-    //     if (!heroTrig || !photoTrig || !letterTrig) {
-    //         console.warn('Missing expected triggers (hero/photo/letter). Aborting GSAP setup.')
-    //         return
-    //     }
-
-    //     const created: ScrollTrigger[] = []
-
-    //     const ctx = gsap.context(() => {
-    //         // initial placement (use first position)
-    //         gsap.set(modelGroupRef.current!.rotation, { x: 0, y: 0, z: 0 })
-    //         const p0 = positionsRef.current![0]
-    //         gsap.set(modelGroupRef.current!.position, { x: p0.x, y: p0.y, z: p0.z })
-    //         gsap.set(modelGroupRef.current!.scale, { x: 0, y: 0, z: 0 })
-    //         gsap.to(modelGroupRef.current!.scale, { x: 3, y: 4, z: 3, duration: 4 })
-
-    //         // ensure proxy starts at initial stop
-    //         proxyRef.current.t = STOPS[0]
-    //         targetT.current = proxyRef.current.t
-
-    //         // helper to animate proxy -> stop
-    //         const snapDuration = 0.25// smaller -> less chance of overlap; 0 for instant
-    //         const snapTo = (stop: number) => {
-    //             // kill any previous snaps on proxy object
-    //             gsap.killTweensOf(proxyRef.current)
-
-    //             // if already very near target, jump (avoid tiny micro-tweens)
-    //             if (Math.abs(proxyRef.current.t - stop) < 1e-3) {
-    //                 proxyRef.current.t = stop
-    //                 targetT.current = proxyRef.current.t
-    //                 return
-    //             }
-
-    //             gsap.to(proxyRef.current, {
-    //                 t: stop,
-    //                 duration: snapDuration,
-    //                 overwrite: true,
-    //                 ease: 'power2.out',
-    //                 onUpdate: () => {
-    //                     targetT.current = proxyRef.current.t
-    //                 }
-    //             })
-    //         }
-
-    //         // map sections to stop indices (adjust indices to your DOM order)
-    //         const mapping = [
-    //             { el: heroTrig, stopIndex: 0 },
-    //             { el: photoTrig, stopIndex: 1 },
-    //             { el: letterTrig, stopIndex: 2 },
-    //             // optional final area mapping to last stop
-    //             ...(endTrig ? [{ el: endTrig, stopIndex: STOPS.length - 1 }] : [])
-    //         ] as const
-
-    //         // create a ScrollTrigger for each mapped element
-    //         for (const item of mapping) {
-    //             const st = ScrollTrigger.create({
-    //                 trigger: item.el,
-    //                 start: 'top top',
-    //                 end: 'bottom top',
-    //                 markers: showMarkers, // reuse debug toggle
-    //                 onEnter: () => {
-    //                     snapTo(STOPS[item.stopIndex])
-    //                 },
-    //                 onEnterBack: () => {
-    //                     snapTo(STOPS[item.stopIndex])
-    //                 }
-    //             })
-    //             created.push(st)
-    //         }
-
-    //         // small refresh
-    //         setTimeout(() => ScrollTrigger.refresh(), 80)
-    //     }, modelGroupRef)
-
-    //         ; (ctx as any)._created = created
-
-    //     return () => {
-    //         try {
-    //             const triggers: ScrollTrigger[] = (ctx as any)._created || []
-    //             triggers.forEach(t => t.kill())
-    //         } catch (e) { /* ignore */ }
-    //         ctx.revert()
-    //     }
-    // }, {
-    //     dependencies: [triggerEl, isLoaded, nodes, triggerEl?.children.length, modelReady, showMarkers, rebuildKey]
-    // })
-
-    // render
-
-    /* ---------- Replace your existing useGSAP block with this (no `any`) ---------- */
     useGSAP(() => {
         if (!triggerEl || !isLoaded || !nodes || !modelGroupRef.current || !rotationGroupRef.current || !positionsRef.current || !modelReady) {
             return
@@ -420,7 +287,7 @@ export default function Scene() {
         const letterTrig = children[2] ?? null
 
         if (!heroTrig || !photoTrig || !letterTrig) {
-            console.warn('Expected some triggers missing — proceeding with scrub over the triggerEl element.')
+            console.warn('Expected some triggers missing â€” proceeding with scrub over the triggerEl element.')
         }
 
         // typed array of created ScrollTrigger instances
@@ -431,8 +298,13 @@ export default function Scene() {
             gsap.set(modelGroupRef.current!.rotation, { x: 0, y: 0, z: 0 })
             const p0 = positionsRef.current![0]
             gsap.set(modelGroupRef.current!.position, { x: p0.x, y: p0.y, z: p0.z })
-            gsap.set(modelGroupRef.current!.scale, { x: 0, y: 0, z: 0 })
-            gsap.to(modelGroupRef.current!.scale, { x: 3, y: 4, z: 3, duration: 4 })
+            gsap.to(modelGroupRef.current!.scale, {
+                x: 3 * scalingFactor,
+                y: 4 * scalingFactor,
+                z: 3 * scalingFactor,
+                duration: 4,
+                overwrite: true
+            })
 
             // ensure proxy starts at initial stop
             proxyRef.current.t = STOPS[0]
@@ -459,7 +331,7 @@ export default function Scene() {
             if (maybeSt) created.push(maybeSt)
         }, modelGroupRef)
 
-            // store created array on the ctx's scope? not necessary — we'll close over `created`
+            // store created array on the ctx's scope? not necessary â€” we'll close over `created`
             ; (ctx as unknown as { _created?: Array<ReturnType<typeof ScrollTrigger.create>> })._created = created
 
         return () => {
@@ -480,16 +352,6 @@ export default function Scene() {
 
     return (
         <>
-            {/* Debug overlay (DOM) */}
-            {/* <DebugOverlay
-                proxyRef={proxyRef}
-                stops={STOPS}
-                showMarkers={showMarkers}
-                setShowMarkers={(v) => setShowMarkers(v)}
-                rebuild={() => setRebuildKey(k => k + 1)}
-            /> */}
-
-            {/* 3D Canvas */}
             <Canvas
                 shadows
                 dpr={[0.6, 0.8]}
@@ -508,12 +370,13 @@ export default function Scene() {
                 }}
             >
                 <Suspense fallback={null}>
-                    <Environment files='/images/hdri/sunrise.jpg' environmentIntensity={0.1} />
-                    <pointLight castShadow color='white' position={[-4, 1, -6]} intensity={Math.PI * 1} />
-                    <spotLight ref={setSpotLightRef} castShadow position={[9, 10, -2]} color='orange' intensity={Math.PI * 700} />
+                    <Environment files='/images/hdri/sunrise.jpg' environmentIntensity={0.4} />
+                    <pointLight castShadow color='orange' position={[-4, 2, -6]} intensity={Math.PI * 200} />
+                    <spotLight ref={setSpotLightRef} castShadow position={[10, 9, -1]} color='white' intensity={Math.PI * 700} />
 
                     <Bvh>
-                        <group ref={setModelRef}>
+                        <group ref={setModelRef}
+                            scale={[0, 0, 0]}>
                             {/* <axesHelper /> */}
                             <group ref={rotationGroupRef}>
                                 <mesh geometry={nodes.mesh001.geometry} material={materials.LEAVES} />
@@ -534,10 +397,21 @@ export default function Scene() {
 
                     <EffectComposer>
                         <N8AO />
-                        <Bloom />
+                        <Bloom
+                            intensity={12}
+                            luminanceThreshold={0.3}
+
+                        />
                     </EffectComposer>
                 </Suspense>
             </Canvas>
         </>
     )
 }
+
+
+
+
+
+
+

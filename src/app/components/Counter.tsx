@@ -58,6 +58,7 @@ export default function CounterSlot() {
    const { reels, ticks } = useMemo(() => buildOdometer(days), [days]);
    const botText = useRef<HTMLDivElement>(null)
    const topText = useRef<HTMLDivElement>(null)
+   const ctaText = useRef<HTMLDivElement>(null)
    const container = useRef<HTMLDivElement>(null)
    const odometer = useRef<HTMLDivElement | null>(null)
    const triggerEl = useTriggerStore((s) => s.triggerEl)
@@ -95,9 +96,12 @@ export default function CounterSlot() {
          splits.push({ instance: topChars, target: topText.current })
          const botChars = new SplitText(botText.current!, { type: 'chars' })
          splits.push({ instance: botChars, target: botText.current })
+         const ctaChars = new SplitText(ctaText.current!, { type: 'chars' })
+         splits.push({ instance: ctaChars, target: ctaText.current })
 
          gsap.set(topChars.chars, { opacity: 0 })
          gsap.set(botChars.chars, { opacity: 0 })
+         gsap.set(ctaChars.chars, { opacity: 0 })
          gsap.set(odometer.current, { opacity: 0 })
 
          // measure digit height (use first available reel/digit)
@@ -147,7 +151,12 @@ export default function CounterSlot() {
                y: '0px',
                overwrite: true,
                stagger: { each: 0.06 }
-            }, '>-0.5')
+            }, '>-0.5').to(ctaChars.chars, {
+               opacity: 1,
+               y: '0px',
+               overwrite: true,
+               stagger: { each: 0.06 }
+            },'>+0.8')
          })
 
 
@@ -194,7 +203,8 @@ export default function CounterSlot() {
                   </div>
                ))}
             </div>
-            <p ref={botText}>days since we are together...</p>
+            <p ref={botText}>days since we are together</p>
+            <p ref={ctaText}>and, I have something to tell you.</p>
          </div>
       </div>
    );

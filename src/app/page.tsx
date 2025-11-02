@@ -1,4 +1,4 @@
-// src/app/page.tsx
+﻿// src/app/page.tsx
 
 'use client'
 import dynamic from 'next/dynamic'
@@ -13,6 +13,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import Ending from '@/app/components/Ending'
+import Loading from '@/app/components/Loading'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -76,6 +77,7 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
+      {/* <Loading /> */}
       <div
         style={{
           position: 'fixed',
@@ -84,8 +86,7 @@ export default function Home() {
           zIndex: 2
         }}
       >
-        <Scene />
-        {/* <PinSequence skipFirst={1} markers={true}/> */}
+      <Scene />
       </div>
       <div className={styles.grid} ref={gridRef}>
         <div className={styles.hero}>
@@ -110,3 +111,5 @@ export default function Home() {
     </main >
   )
 }
+
+

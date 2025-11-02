@@ -3,14 +3,17 @@
    overflow: hidden;
    /* background-color: pink; */
    position: relative;
-   filter: grayscale(1)
 }
 
 .photoPage img {
    opacity: 0;
-   /* initial hidden state */
    transition: none;
-   /* let GSAP handle the animation */
+   
+   filter: grayscale(1)
+}
+
+.photoPage img:hover{
+   filter: unset;
 }
 
 .pinWrapper {
@@ -18,3 +21,7 @@
    display: contents;
    height: 100%;
 }
+@media screen and (max-width: 768px) {
+  /* TODO: mobile styles */
+}
+

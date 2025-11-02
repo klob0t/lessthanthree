@@ -1,5 +1,5 @@
 // '@/app/components/Hero.tsx'
-
+'use client'
 import styles from './hero.module.css'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
 import gsap from 'gsap'
@@ -45,18 +45,41 @@ export default function Hero() {
          }
       }, '>+0.6')
 
+      const scroll = gsap.timeline(
+         {
+            scrollTrigger: {
+               trigger: heroPage.current,
+               start: 'top top',
+               end: 'bottom top',
+               markers: false,
+               scrub: true
+            }
+         }
+      )
+
+      scroll.to(muthia.current, {
+         y: -800,
+      })
+
+
+
       return () => {
          dearChars.revert();
          muthiaChars.revert();
+         tl.revert()
       }
 
    }, { dependencies: [isLoaded] })
 
    return (
       <div className={styles.heroPage} ref={heroPage}>
-         <p ref={dear}><span>D</span>ear</p>
-         <div>
-            <p ref={muthia}><span>M</span>uthia</p>
+         <div className={styles.heroWrapper}>
+            <div>
+               <h1 ref={dear}><span>D</span>ear</h1>
+            </div>
+            <div>
+               <h1 ref={muthia}><span>M</span>uthia</h1>
+            </div>
          </div>
       </div>
    )
