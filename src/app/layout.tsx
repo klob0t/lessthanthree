@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import LenisProvider from "./lib/utils/Lenis";
+import Loading from "@/app/components/Loading";
 
 
 const serif = localFont({
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${serif.variable} ${cursive.variable}`}>
       <body >
+        <Loading />
         <LenisProvider />
         {children}
       </body>

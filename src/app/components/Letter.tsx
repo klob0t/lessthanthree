@@ -2,7 +2,6 @@
 'use client'
 import React, { useEffect, useRef, useState, useMemo } from 'react'
 import Markdown from 'markdown-to-jsx'
-import styles from './letter.module.css'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
@@ -97,11 +96,50 @@ export default function Letter() {
     { dependencies: [triggerEl, md], scope: letterPageRef } // scope animations to letterPageRef
   )
 
-
   return (
-    <div className={styles.letterPage} ref={letterPageRef}>
-      <div className={styles.letterWrapper}>
-        <Markdown>{md}</Markdown>
+    <div ref={letterPageRef}
+      style={{
+        display: 'flex',
+        height: 'auto',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '1.5rem',
+        pointerEvents: 'none'
+      }}>
+      <div
+        style={{
+          height: 'auto',
+          maxWidth: '1024px',
+          widows: '100%',
+          fontFamily: 'var(--cursive)',
+          fontSize: '2rem'
+        }}>
+        <Markdown
+          options={{ 
+            wrapper: 'article',
+            overrides: {
+              h3: {
+                props: {
+                  style: {
+                    fontFamily: 'var(--cursive)',
+                    fontWeight: 100,
+                    fontSize: '4rem',
+                    margin: '0rem 0rem 1rem 0rem',
+                    padding: '0',
+                  }
+                }
+              },
+              p: {
+                props: {
+                  style: {
+                    fontFamily: 'var(--serif)',
+                    fontSize: '1.2rem',
+                    margin: '0rem 0rem 1rem 0rem'
+                  }
+                }
+              }
+            }
+             }}>{md}</Markdown>
       </div>
     </div>
   )

@@ -1,13 +1,14 @@
 ﻿// src/app/components/Scene.tsx
 'use client'
 import React, { Suspense, useRef, useState, useCallback, useEffect } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Bvh, Environment, useGLTF, useProgress } from '@react-three/drei'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
+import { useStartFlowStore } from '@/app/lib/store/buttonStore'
 import { useTriggerStore } from '@/app/lib/store/triggerStore'
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
 
@@ -202,16 +203,13 @@ export default function Scene() {
 
     const isMobile = window.innerWidth < 768
 
-
-
-    console.log(scalingFactor)
-
     const [modelReady, setModelReady] = useState(false)
-    // const [showMarkers, setShowMarkers] = useState(false)
-    // const [rebuildKey, setRebuildKey] = useState(0) 
 
     const triggerEl = useTriggerStore((s) => s.triggerEl)
     const isLoaded = useLoadingStore(state => state.activeLoaders.size === 0)
+    const enterSignal = useStartFlowStore((s) => s.enterSignal)
+
+
     const startLoading = useLoadingStore((state) => state.startLoading)
     const finishLoading = useLoadingStore((state) => state.finishLoading)
     const shouldHoldScene = active || !modelReady
@@ -274,12 +272,12 @@ export default function Scene() {
             new THREE.Vector3(1, -2, 4), // stop 2
             new THREE.Vector3(0, 1, 2)  // stop 3
         ]
-    }, [])
+    }, [isMobile])
 
     useGSAP(() => {
-        if (!triggerEl || !isLoaded || !nodes || !modelGroupRef.current || !rotationGroupRef.current || !positionsRef.current || !modelReady) {
-            return
-        }
+        if (!triggerEl || !isLoaded || !nodes || !modelGroupRef.current || !rotationGroupRef.current || !positionsRef.current || !modelReady)  return
+        if (enterSignal === 0) return
+        
 
         const children = Array.from(triggerEl.children) as HTMLElement[]
         const heroTrig = children[0] ?? null
@@ -345,7 +343,7 @@ export default function Scene() {
             ctx.revert()
         }
     }, {
-        dependencies: [triggerEl, isLoaded, nodes, triggerEl?.children.length, modelReady]
+        dependencies: [triggerEl, isLoaded, nodes, triggerEl?.children.length, modelReady, enterSignal]
     })
 
 
@@ -358,10 +356,8 @@ export default function Scene() {
                 camera={{ fov: 55, position: [0, 8, 0] }}
                 style={{
                     backgroundColor: 'transparent',
-                    position: 'fixed',
                     width: '100%',
                     height: '100%',
-                    zIndex: 2,
                     pointerEvents: 'none'
                 }}
                 gl={{
@@ -398,7 +394,7 @@ export default function Scene() {
                     <EffectComposer>
                         <N8AO />
                         <Bloom
-                            intensity={12}
+                            intensity={2}
                             luminanceThreshold={0.3}
 
                         />
@@ -408,6 +404,8 @@ export default function Scene() {
         </>
     )
 }
+
+useGLTF.preload('/3d/flower.glb')
 
 
 

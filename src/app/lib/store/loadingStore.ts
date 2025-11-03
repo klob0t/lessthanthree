@@ -38,7 +38,3 @@ export const useLoadingStore = create<LoadingState>((set) => ({
       })
    }
 }))
-
-useLoadingStore.subscribe((state) => {
-   // console.log('%c Loader count:', 'color: yellow', state.activeLoaders)
-})

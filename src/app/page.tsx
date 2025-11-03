@@ -6,14 +6,14 @@ import styles from './page.module.css'
 import Photos from '@/app/components/Photos'
 import Hero from '@/app/components/Hero'
 import { useLoadingStore } from '@/app/lib/store/loadingStore'
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTriggerStore } from '@/app/lib/store/triggerStore'
 import Letter from '@/app/components/Letter'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import Ending from '@/app/components/Ending'
-import Loading from '@/app/components/Loading'
+import { useStartFlowStore } from '@/app/lib/store/buttonStore'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -25,6 +25,14 @@ export default function Home() {
   const { finishLoading } = useLoadingStore()
   const gridRef = useRef<HTMLDivElement>(null)
   const setTrigger = useTriggerStore((s) => s.setTrigger)
+
+  const letterRef = useRef<HTMLDivElement>(null)
+
+  console.log(letterRef.current?.offsetHeight)
+
+  const [letterHeight, setLetterHeight] = useState<number | null>(null)
+
+  const enterSignal = useStartFlowStore(s => s.enterSignal)
 
   const triggerEl = useTriggerStore((s) => s.triggerEl)
 
@@ -47,7 +55,7 @@ export default function Home() {
 
   useGSAP(() => {
 
-    if (!triggerEl) return
+    if (!triggerEl || enterSignal === 0) return
 
     const children = Array.from(triggerEl?.children)
 
@@ -73,11 +81,19 @@ export default function Home() {
       pinType: 'fixed',
       pinSpacing: false
     })
-  }, { dependencies: [triggerEl] })
+  }, { dependencies: [triggerEl, enterSignal] })
+
+  useLayoutEffect(() => {
+    if (!letterRef.current) return
+    const update = () => setLetterHeight(letterRef.current!.offsetHeight)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(letterRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <main className={styles.main}>
-      {/* <Loading /> */}
       <div
         style={{
           position: 'fixed',
@@ -86,7 +102,7 @@ export default function Home() {
           zIndex: 2
         }}
       >
-      <Scene />
+        <Scene />
       </div>
       <div className={styles.grid} ref={gridRef}>
         <div className={styles.hero}>
@@ -95,15 +111,18 @@ export default function Home() {
         <div className={styles.photo}>
           <Photos />
         </div>
-        <div className={styles.spacer}>
-        </div>
-        <div className={styles.letter}>
+        <div className={styles.spacer}
+          style={{ height: '100lvh' }}
+        />
+        <div className={styles.letter} ref={letterRef}>
           <Letter />
         </div>
-        <div className={styles.spacer}>
-        </div>
+        <div
+          className={styles.spacer}
+          style={letterHeight ? { height: `${letterHeight}px` } : { height: '100lvh' }}
+        />
         <div className={styles.ending}>
-        <Ending />
+          <Ending />
         </div>
 
       </div>

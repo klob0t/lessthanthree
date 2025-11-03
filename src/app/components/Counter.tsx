@@ -203,8 +203,8 @@ export default function CounterSlot() {
                   </div>
                ))}
             </div>
-            <p ref={botText}>days since we are together</p>
-            <p ref={ctaText}>and, I have something to tell you.</p>
+            <p ref={botText}>days since we are together...</p>
+            <p ref={ctaText}>i have something to tell you</p>
          </div>
       </div>
    );

@@ -2,19 +2,16 @@
    height: 100dvh;
    overflow: hidden;
    /* background-color: pink; */
+   
+   filter: grayscale(1);
    position: relative;
 }
 
 .photoPage img {
    opacity: 0;
    transition: none;
-   
-   filter: grayscale(1)
 }
 
-.photoPage img:hover{
-   filter: unset;
-}
 
 .pinWrapper {
    width: 100%;
